@@ -1,1 +1,4 @@
 node_modules
+test/dotnet-test/bin
+test/dotnet-test/obj
+.vscode

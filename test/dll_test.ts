@@ -2,7 +2,7 @@ import {describe, expect, test, beforeAll} from '@jest/globals';
 import * as PE from 'pe-library';
 import * as fs from 'fs';
 import * as child_process from 'child_process';
-import { CliParser } from '../src/main.js';
+import { CliParser } from 'src/main.js';
 
 const dllPath = './test/dotnet-test/bin/Debug/net7.0/dotnet-test.dll';
 
@@ -106,6 +106,7 @@ describe('DLL file parsing tests', () => {
         expect(tables.moduleTable).not.toBeNull();
         if (!tables.moduleTable) { throw ''; }
         expect(tables.moduleTable.rows.length).toBe(1);
+        expect(tables.moduleTable.rows[0].generation).toBe(0);
         expect(tables.moduleTable.rows[0].name).toBe('dotnet-test.dll');
         expect(tables.typeDefTable).not.toBeNull();
         if (!tables.typeDefTable) { throw ''; }

@@ -1,12 +1,16 @@
+import { CodedIndexColumn } from "./Columns/CodedIndexColumn.js";
+import { Column } from "./Columns/Column.js";
 import { StringHeap } from "./StringHeap.js";
 import { CliMetadataTableStreamHeader, HeapSizes, MetadataTables } from "./Structures.js";
+import * as CodedIndex from "./Columns/CodedIndex.js"
+import { StringReferenceColumn } from "./Columns/StringReferenceColumn.js";
 
-export interface TypeRefTableRow {
-    resolutionScopeCI: number;
-    typeNameIndex: number;
-    typeName: string;
-    typeNamespaceIndex: number;
-    typeNamespace: string;
+export class TypeRefTableRow {
+    resolutionScopeCI: number = 0;
+    typeNameIndex: number = 0;
+    typeName: string = "";
+    typeNamespaceIndex: number = 0;
+    typeNamespace: string = "";
 }
 
 export interface TypeRefTableReadResult {
@@ -32,64 +36,30 @@ export class TypeRefTable {
         }
 
         const view = new DataView(original.buffer, original.byteOffset + tableOffset);
+        const stringHeapIndexSize = tableStreamHeader.heapSizes & HeapSizes.StringStreamUses32BitIndexes ? 4 : 2;
 
         let offset = 0;
         let rows: TypeRefTableRow[] = [];
+
+        const columns: Column<TypeRefTableRow>[] = [
+            new CodedIndexColumn(tableStreamHeader, CodedIndex.ResolutionScope, (row, index) => row.resolutionScopeCI = index),
+            new StringReferenceColumn(stringHeap, stringHeapIndexSize, (row, index) => row.typeNameIndex = index, (row, value) => row.typeName = value),
+            new StringReferenceColumn(stringHeap, stringHeapIndexSize, (row, index) => row.typeNamespaceIndex = index, (row, value) => row.typeNamespace = value),
+        ];
+
         for (let i = 0; i < tableStreamHeader.tableRowCounts[MetadataTables.TypeRef]; ++i) {
-            const rowResult = getTypeRefTableRow(view, offset, tableStreamHeader, stringHeap);
-            rows.push(rowResult.TypeRefTableRow);
-            offset += rowResult.bytesRead;
+            let row = new TypeRefTableRow();
+
+            for (const column of columns) {
+                offset += column.read(view, offset, row);
+            }
+
+            rows.push(row);
         }
+
         return {
             table: new TypeRefTable(rows),
             bytesRead: offset,
         }
-    }
-}
-
-enum ResolutionScope {
-    Module = 0,
-    ModuleRef = 1,
-    AssemblyRef = 2,
-    TypeRef = 3,
-}
-
-interface TypeRefTableRowReadResult {
-    TypeRefTableRow: TypeRefTableRow;
-    bytesRead: number;
-}
-
-function getTypeRefTableRow(
-    view: DataView,
-    offset: number,
-    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
-    stringHeap: Readonly<StringHeap>): TypeRefTableRowReadResult
-{
-    const maxRows = Math.max(
-        tableStreamHeader.tableRowCounts[MetadataTables.Module],
-        tableStreamHeader.tableRowCounts[MetadataTables.ModuleRef],
-        tableStreamHeader.tableRowCounts[MetadataTables.AssemblyRef],
-        tableStreamHeader.tableRowCounts[MetadataTables.TypeRef]);
-    const resolutionScopeIndexSize = maxRows < (1 << (16 - 2)) ? 2 : 4;
-    const stringHeapIndexSize = tableStreamHeader.heapSizes & HeapSizes.StringStreamUses32BitIndexes ? 4 : 2;
-    const getStringHeapIndex = stringHeapIndexSize === 4 ? view.getUint32.bind(view) : view.getUint16.bind(view);
-
-    const resolutionScopeCI = resolutionScopeIndexSize == 2 ? view.getUint16(offset, true) : view.getUint32(offset, true);
-    const tableTag = resolutionScopeCI & 0b11;
-    const tableIndex = resolutionScopeCI >> 2;
-    // TODO: consume tableTag and tableIndex
-    const row: TypeRefTableRow = {
-        resolutionScopeCI: resolutionScopeCI,
-        typeNameIndex: getStringHeapIndex(offset + resolutionScopeIndexSize, true),
-        typeName: "",
-        typeNamespaceIndex: getStringHeapIndex(offset + resolutionScopeIndexSize + stringHeapIndexSize, true),
-        typeNamespace: "",
-    };
-    row.typeName = stringHeap.getString(row.typeNameIndex);
-    row.typeNamespace = stringHeap.getString(row.typeNamespaceIndex);
-
-    return {
-        TypeRefTableRow: row,
-        bytesRead: resolutionScopeIndexSize + stringHeapIndexSize * 2
     }
 }

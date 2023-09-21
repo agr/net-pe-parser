@@ -1,8 +1,8 @@
 import { HeapBase } from "./HeapBase.js";
 
 export class BinaryHeap extends HeapBase {
-    constructor(heapData: DataView) {
-        super(heapData);
+    constructor(heapData: DataView, indexSizeBytes: number) {
+        super(heapData, indexSizeBytes);
     }
 
     public getBinaryData(offset: number, length: number): DataView {

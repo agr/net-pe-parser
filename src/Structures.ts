@@ -1,7 +1,5 @@
 import * as PE from 'pe-library';
-import { ModuleTable } from './ModuleTable.js';
-import { TypeRefTable } from './TypeRefTable.js';
-import { TypeDefTable } from './TypeDefTable.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow } from './Table.js';
 
 export interface CliHeader {
     cbSize: number;
@@ -96,7 +94,7 @@ export interface CliMetadataTableStreamHeader {
 }
 
 export interface CliMetadataTables {
-    moduleTable: Readonly<ModuleTable> | null;
-    typeRefTable: Readonly<TypeRefTable> | null;
-    typeDefTable: Readonly<TypeDefTable> | null;
+    moduleTable: Readonly<ModuleTableRow[]> | null;
+    typeRefTable: Readonly<TypeRefTableRow[]> | null;
+    typeDefTable: Readonly<TypeDefTableRow[]> | null;
 }

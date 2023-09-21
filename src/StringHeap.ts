@@ -2,8 +2,8 @@ import { HeapBase } from "./HeapBase.js";
 import { getNullTerminatedUtf8String } from "./Helpers.js";
 
 export class StringHeap extends HeapBase {
-    constructor(heapData: DataView) {
-        super(heapData);
+    constructor(heapData: DataView, indexSizeBytes: number) {
+        super(heapData, indexSizeBytes);
     }
 
     public getString(offset: number): string {

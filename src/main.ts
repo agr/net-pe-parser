@@ -1,10 +1,10 @@
 import * as PE from 'pe-library';
 import { getBoolArrayFromBitmask, getNullTerminatedUtf8String, getUtf8String, roundUpToNearest } from './Helpers.js';
-import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables } from './Structures.js';
-import { ModuleTable } from './ModuleTable.js';
+import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables, HeapSizes, MetadataTables } from './Structures.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow } from './Table.js';
 import { StringHeap } from './StringHeap.js';
-import { TypeRefTable } from './TypeRefTable.js';
-import { TypeDefTable } from './TypeDefTable.js';
+import { GuidHeap } from './GuidHeap.js';
+import * as Table from './Table.js'
 
 export class CliParser {
     public static getCliHeader(exe: PE.NtExecutable): Readonly<CliHeader> | null {
@@ -125,23 +125,34 @@ export class CliParser {
         if (!stringHeapStream) {
             return null;
         }
-        const stringHeap = new StringHeap(stringHeapStream);
+
+        const guidHeapStreamHeader = metadataRoot.streamHeaders.find(h => h.streamName === "#GUID");
+        if (!guidHeapStreamHeader) {
+            return null;
+        }
+
+        const guidHeapStream = this.getMetadataStream(exe, metadataRva, guidHeapStreamHeader);
+        if (!guidHeapStream) {
+            return null;
+        }
 
         const headerReadResult = this.readCliMetadataTableHeader(metadataStream);
         const header = headerReadResult.header;
+        const stringHeap = new StringHeap(stringHeapStream, header.heapSizes & HeapSizes.StringStreamUses32BitIndexes ? 4 : 2);
+        const guidHeap = new GuidHeap(guidHeapStream, header.heapSizes & HeapSizes.GuidStreamUses32BitIndexes ? 4 : 2);
 
         let offset = headerReadResult.totalBytesRead;
-        const moduleTableReadResult = ModuleTable.fromBytes(metadataStream, offset, header, stringHeap);
-        offset += moduleTableReadResult?.bytesRead || 0;
-        const typeRefTableReadResult = TypeRefTable.fromBytes(metadataStream, offset, header, stringHeap);
-        offset += typeRefTableReadResult?.bytesRead || 0;
-        const typeDefTableReadResult = TypeDefTable.fromBytes(metadataStream, offset, header, stringHeap);
-        offset += typeDefTableReadResult?.bytesRead || 0;
+        const moduleTableReadResult = Table.getRowsFromBytes(MetadataTables.Module, metadataStream, offset, () => new ModuleTableRow(), Table.getModuleTableColumns(stringHeap, guidHeap), header);
+        offset += moduleTableReadResult.bytesRead || 0;
+        const typeRefTableReadResult = Table.getRowsFromBytes(MetadataTables.TypeRef, metadataStream, offset, () => new TypeRefTableRow(), Table.getTypeRefTableColumn(header, stringHeap), header);
+        offset += typeRefTableReadResult.bytesRead || 0;
+        const typeDefTableReadResult = Table.getRowsFromBytes(MetadataTables.TypeDef, metadataStream, offset, () => new TypeDefTableRow(), Table.getTypeDefTableColumn(header, stringHeap), header);
+        offset += typeDefTableReadResult.bytesRead || 0;
 
         return {
-            moduleTable: moduleTableReadResult ? moduleTableReadResult.table : null,
-            typeRefTable: typeRefTableReadResult ? typeRefTableReadResult.table : null,
-            typeDefTable: typeDefTableReadResult ? typeDefTableReadResult.table : null,
+            moduleTable: moduleTableReadResult ? moduleTableReadResult.rows : null,
+            typeRefTable: typeRefTableReadResult ? typeRefTableReadResult.rows : null,
+            typeDefTable: typeDefTableReadResult ? typeDefTableReadResult.rows : null,
         }
     }
 

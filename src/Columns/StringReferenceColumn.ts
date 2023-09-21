@@ -3,20 +3,17 @@ import { StringHeap } from "../StringHeap.js";
 
 export class StringReferenceColumn<TRow> implements Column<TRow> {
     private readonly stringHeap: Readonly<StringHeap>;
-    private readonly stringHeapIndexSize: number;
     private readonly readIndex: (view: DataView, offset: number) => number;
     private readonly setIndex: (row: TRow, index: number) => void;
     private readonly setString: (row: TRow, value: string) => void;
 
     constructor(
         stringHeap: Readonly<StringHeap>,
-        stringHeapIndexSize: number,
         setIndex: (row: TRow, index: number) => void,
         setString: (row: TRow, value: string) => void)
     {
         this.stringHeap = stringHeap;
-        this.stringHeapIndexSize = stringHeapIndexSize;
-        this.readIndex = stringHeapIndexSize == 2
+        this.readIndex = stringHeap.indexSizeBytes == 2
             ? (view, offset) => view.getUint16(offset, true)
             : (view, offset) => view.getUint32(offset, true);
         this.setIndex = setIndex;
@@ -28,7 +25,7 @@ export class StringReferenceColumn<TRow> implements Column<TRow> {
         this.setIndex(row, index);
         const value = this.stringHeap.getString(index);
         this.setString(row, value);
-        return this.stringHeapIndexSize;
+        return this.stringHeap.indexSizeBytes;
     }
 
 }

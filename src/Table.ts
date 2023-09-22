@@ -86,6 +86,16 @@ export class FieldTableRow {
     signatureIndex: number = 0;
 }
 
+export class MethodDefRow {
+    rva: number = 0;
+    implFlags: number = 0;
+    flags: number = 0;
+    nameIndex: number = 0;
+    name: string = "";
+    signatureIndex: number = 0;
+    paramListIndex: number = 0;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -132,5 +142,20 @@ export function getFieldTableColumn(
         new UintColumn(2, (row, value) => row.flags = value),
         new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
         new BlobReferenceColumn(blobHeap.indexSizeBytes, (row, index) => row.signatureIndex = index),
+    ];
+}
+
+export function getMethodDefTableColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>): Column<MethodDefRow>[]
+{
+    return [
+        new UintColumn(4, (row, value) => row.rva = value),
+        new UintColumn(2, (row, value) => row.implFlags = value),
+        new UintColumn(2, (row, value) => row.flags = value),
+        new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
+        new BlobReferenceColumn(blobHeap.indexSizeBytes, (row, index) => row.signatureIndex = index),
+        new TableIndexColumn(tableStreamHeader, MetadataTables.Param, (row, index) => row.paramListIndex = index),
     ];
 }

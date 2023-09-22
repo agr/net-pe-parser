@@ -7,6 +7,8 @@ public class Class2
     }
 
     public class NestedClass {
-        
+        public object NestedClassMethod(object someObject) {
+            return new object();
+        }
     }
 }

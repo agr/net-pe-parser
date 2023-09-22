@@ -108,10 +108,19 @@ describe('DLL file parsing tests', () => {
         expect(tables.moduleTable.length).toBe(1);
         expect(tables.moduleTable[0].generation).toBe(0);
         expect(tables.moduleTable[0].name).toBe('dotnet-test.dll');
+        expect(tables.typeRefTable).not.toBeNull();
+        if (!tables.typeRefTable) { throw ''; }
         expect(tables.typeDefTable).not.toBeNull();
         if (!tables.typeDefTable) { throw ''; }
         expect(tables.typeDefTable.map(r => r.typeName)).toContain("Class1");
         expect(tables.typeDefTable.map(r => r.typeName)).toContain("Class2");
         expect(tables.typeDefTable.map(r => r.typeName)).toContain("NestedClass");
+        expect(tables.fieldTable).not.toBeNull();
+        if (!tables.fieldTable) { throw ''; }
+        expect(tables.methodDefTable).not.toBeNull();
+        if (!tables.methodDefTable) { throw ''; }
+        expect(tables.methodDefTable.map(r => r.name)).toContain("TestFn");
+        expect(tables.methodDefTable.map(r => r.name)).toContain("AnotherFn");
+        expect(tables.methodDefTable.map(r => r.name)).toContain("NestedClassMethod");
     });
 });

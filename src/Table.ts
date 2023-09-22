@@ -1,3 +1,5 @@
+import { BinaryHeap } from "./BinaryHeap.js";
+import { BlobReferenceColumn } from "./Columns/BlobReferenceColumns.js";
 import * as CodedIndex from "./Columns/CodedIndex.js"
 import { CodedIndexColumn } from "./Columns/CodedIndexColumn.js";
 import { Column } from "./Columns/Column.js";
@@ -77,6 +79,13 @@ export class TypeDefTableRow {
     methodListIndex: number = 0;
 }
 
+export class FieldTableRow {
+    flags: number = 0;
+    nameIndex: number = 0;
+    name: string = "";
+    signatureIndex: number = 0;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -112,5 +121,16 @@ export function getTypeDefTableColumn(
         new CodedIndexColumn(tableStreamHeader, CodedIndex.TypeDefOrRef, (row, index) => row.extendsCI = index),
         new TableIndexColumn(tableStreamHeader, MetadataTables.Field, (row, index) => row.fieldListIndex = index),
         new TableIndexColumn(tableStreamHeader, MetadataTables.MethodDef, (row, index) => row.methodListIndex = index),
+    ];
+}
+
+export function getFieldTableColumn(
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>): Column<FieldTableRow>[]
+{
+    return [
+        new UintColumn(2, (row, value) => row.flags = value),
+        new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
+        new BlobReferenceColumn(blobHeap.indexSizeBytes, (row, index) => row.signatureIndex = index),
     ];
 }

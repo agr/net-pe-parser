@@ -127,5 +127,9 @@ describe('DLL file parsing tests', () => {
         expect(tables.paramTable.map(r => r.name)).toContain("arg1");
         expect(tables.paramTable.map(r => r.name)).toContain("arg2");
         expect(tables.paramTable.map(r => r.name)).toContain("someObject");
+        expect(tables.interfaceImplTable).not.toBeNull();
+        if (!tables.interfaceImplTable) { throw ''; }
+        expect(tables.interfaceImplTable.length).toBeGreaterThan(0);
+        expect(tables.interfaceImplTable.map(r => tables.typeDefTable![r.classIndex - 1].typeName)).toContain("NestedClass");
     });
 });

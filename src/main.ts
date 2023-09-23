@@ -166,6 +166,8 @@ export class CliParser {
         offset += methodDefReadResult.bytesRead || 0;
         const paramReadResult = Table.getRowsFromBytes(MetadataTables.Param, metadataStream, offset, () => new ParamRow(), Table.getParamTableColumn(stringHeap), header);
         offset += paramReadResult.bytesRead || 0;
+        const interfaceImplReadResult = Table.getRowsFromBytes(MetadataTables.InterfaceImpl, metadataStream, offset, () => new Table.InterfaceImplRow(), Table.getInterfaceImplColumn(header), header);
+        offset += interfaceImplReadResult.bytesRead || 0;
 
         return {
             moduleTable: moduleTableReadResult ? moduleTableReadResult.rows : null,
@@ -174,6 +176,7 @@ export class CliParser {
             fieldTable: fieldTableReadResult ? fieldTableReadResult.rows : null,
             methodDefTable: methodDefReadResult ? methodDefReadResult.rows : null,
             paramTable: paramReadResult ? paramReadResult.rows : null,
+            interfaceImplTable: interfaceImplReadResult ? interfaceImplReadResult.rows : null,
         }
     }
 

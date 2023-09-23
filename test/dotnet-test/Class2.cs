@@ -6,9 +6,16 @@ public class Class2
     {
     }
 
-    public class NestedClass {
+    public class NestedClass : ISomeInterface {
+        public string SomeProperty => throw new NotImplementedException();
+
         public object NestedClassMethod(object someObject) {
             return new object();
+        }
+
+        public void SomeMethod()
+        {
+            throw new NotImplementedException();
         }
     }
 }

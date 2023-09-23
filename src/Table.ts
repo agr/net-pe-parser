@@ -103,6 +103,11 @@ export class ParamRow {
     name: string = "";
 }
 
+export class InterfaceImplRow {
+    classIndex: number = 0;
+    interfaceCI: number = 0;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -174,5 +179,14 @@ export function getParamTableColumn(
         new UintColumn(2, (row, value) => row.flags = value),
         new UintColumn(2, (row, value) => row.sequence = value),
         new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
+    ];
+}
+
+export function getInterfaceImplColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<InterfaceImplRow>[]
+{
+    return [
+        new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.classIndex = index),
+        new CodedIndexColumn(tableStreamHeader, CodedIndex.TypeDefOrRef, (row, index) => row.interfaceCI = index),
     ];
 }

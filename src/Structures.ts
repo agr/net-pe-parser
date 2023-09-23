@@ -1,5 +1,5 @@
 import * as PE from 'pe-library';
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow } from './Table.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow } from './Table.js';
 
 export interface CliHeader {
     cbSize: number;
@@ -100,4 +100,5 @@ export interface CliMetadataTables {
     fieldTable: Readonly<FieldTableRow[]> | null;
     methodDefTable: Readonly<MethodDefRow[]> | null;
     paramTable: Readonly<ParamRow[]> | null;
+    interfaceImplTable: Readonly<InterfaceImplRow[]> | null;
 }

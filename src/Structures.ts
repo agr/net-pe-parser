@@ -55,7 +55,7 @@ export enum MetadataTables {
     DeclSecurity = 0x0E,
     ClassLayout = 0x0F,
     FieldLayout = 0x10,
-    StandaloneSig = 0x11,
+    StandAloneSig = 0x11,
     EventMap = 0x12,
     Event = 0x14,
     PropertyMap = 0x15,
@@ -79,6 +79,10 @@ export enum MetadataTables {
     GenericParam = 0x2A,
     MethodSpec = 0x2B,
     GenericParamConstraint = 0x2C,
+
+    // TODO: figure out what is Permission in HasCustomAttribute coded index
+    Permission = 0xC0, // fake value to map in HasCustomAttribute coded index
+    NotUsed = 0xC1,  // fake value to map in CustomAttributeType coded index to unused tags
 }
 
 export interface CliMetadataTableStreamHeader {

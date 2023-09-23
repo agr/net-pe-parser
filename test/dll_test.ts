@@ -122,5 +122,10 @@ describe('DLL file parsing tests', () => {
         expect(tables.methodDefTable.map(r => r.name)).toContain("TestFn");
         expect(tables.methodDefTable.map(r => r.name)).toContain("AnotherFn");
         expect(tables.methodDefTable.map(r => r.name)).toContain("NestedClassMethod");
+        expect(tables.paramTable).not.toBeNull();
+        if (!tables.paramTable) { throw ''; }
+        expect(tables.paramTable.map(r => r.name)).toContain("arg1");
+        expect(tables.paramTable.map(r => r.name)).toContain("arg2");
+        expect(tables.paramTable.map(r => r.name)).toContain("someObject");
     });
 });

@@ -96,6 +96,13 @@ export class MethodDefRow {
     paramListIndex: number = 0;
 }
 
+export class ParamRow {
+    flags: number = 0;
+    sequence: number = 0;
+    nameIndex: number = 0;
+    name: string = "";
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -157,5 +164,15 @@ export function getMethodDefTableColumn(
         new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
         new BlobReferenceColumn(blobHeap.indexSizeBytes, (row, index) => row.signatureIndex = index),
         new TableIndexColumn(tableStreamHeader, MetadataTables.Param, (row, index) => row.paramListIndex = index),
+    ];
+}
+
+export function getParamTableColumn(
+    stringHeap: Readonly<StringHeap>): Column<ParamRow>[]
+{
+    return [
+        new UintColumn(2, (row, value) => row.flags = value),
+        new UintColumn(2, (row, value) => row.sequence = value),
+        new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
     ];
 }

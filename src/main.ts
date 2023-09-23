@@ -1,7 +1,7 @@
 import * as PE from 'pe-library';
 import { getBoolArrayFromBitmask, getNullTerminatedUtf8String, getUtf8String, roundUpToNearest } from './Helpers.js';
 import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables, HeapSizes, MetadataTables } from './Structures.js';
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow } from './Table.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow } from './Table.js';
 import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
 import * as Table from './Table.js'
@@ -164,6 +164,8 @@ export class CliParser {
         offset += fieldTableReadResult.bytesRead || 0;
         const methodDefReadResult = Table.getRowsFromBytes(MetadataTables.MethodDef, metadataStream, offset, () => new MethodDefRow(), Table.getMethodDefTableColumn(header, stringHeap, blobHeap), header);
         offset += methodDefReadResult.bytesRead || 0;
+        const paramReadResult = Table.getRowsFromBytes(MetadataTables.Param, metadataStream, offset, () => new ParamRow(), Table.getParamTableColumn(stringHeap), header);
+        offset += paramReadResult.bytesRead || 0;
 
         return {
             moduleTable: moduleTableReadResult ? moduleTableReadResult.rows : null,
@@ -171,6 +173,7 @@ export class CliParser {
             typeDefTable: typeDefTableReadResult ? typeDefTableReadResult.rows : null,
             fieldTable: fieldTableReadResult ? fieldTableReadResult.rows : null,
             methodDefTable: methodDefReadResult ? methodDefReadResult.rows : null,
+            paramTable: paramReadResult ? paramReadResult.rows : null,
         }
     }
 

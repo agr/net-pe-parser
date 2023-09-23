@@ -1,7 +1,7 @@
 import * as PE from 'pe-library';
 import { getBoolArrayFromBitmask, getNullTerminatedUtf8String, getUtf8String, roundUpToNearest } from './Helpers.js';
 import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables, HeapSizes, MetadataTables } from './Structures.js';
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow } from './Table.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow } from './Table.js';
 import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
 import * as Table from './Table.js'
@@ -166,8 +166,10 @@ export class CliParser {
         offset += methodDefReadResult.bytesRead || 0;
         const paramReadResult = Table.getRowsFromBytes(MetadataTables.Param, metadataStream, offset, () => new ParamRow(), Table.getParamTableColumn(stringHeap), header);
         offset += paramReadResult.bytesRead || 0;
-        const interfaceImplReadResult = Table.getRowsFromBytes(MetadataTables.InterfaceImpl, metadataStream, offset, () => new Table.InterfaceImplRow(), Table.getInterfaceImplColumn(header), header);
+        const interfaceImplReadResult = Table.getRowsFromBytes(MetadataTables.InterfaceImpl, metadataStream, offset, () => new InterfaceImplRow(), Table.getInterfaceImplColumn(header), header);
         offset += interfaceImplReadResult.bytesRead || 0;
+        const memberRefReadResult = Table.getRowsFromBytes(MetadataTables.MemberRef, metadataStream, offset, () => new MemberRefRow, Table.getMemberRefColumn(header, stringHeap, blobHeap), header);
+        offset += memberRefReadResult.bytesRead || 0;
 
         return {
             moduleTable: moduleTableReadResult ? moduleTableReadResult.rows : null,
@@ -177,6 +179,7 @@ export class CliParser {
             methodDefTable: methodDefReadResult ? methodDefReadResult.rows : null,
             paramTable: paramReadResult ? paramReadResult.rows : null,
             interfaceImplTable: interfaceImplReadResult ? interfaceImplReadResult.rows : null,
+            memberRefTable: memberRefReadResult ? memberRefReadResult.rows : null,
         }
     }
 

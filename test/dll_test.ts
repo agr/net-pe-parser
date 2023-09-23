@@ -131,5 +131,9 @@ describe('DLL file parsing tests', () => {
         if (!tables.interfaceImplTable) { throw ''; }
         expect(tables.interfaceImplTable.length).toBeGreaterThan(0);
         expect(tables.interfaceImplTable.map(r => tables.typeDefTable![r.classIndex - 1].typeName)).toContain("NestedClass");
+        expect(tables.memberRefTable).not.toBeNull();
+        if (!tables.memberRefTable) { throw ''; }
+        expect(tables.memberRefTable.map(r => r.name)).toContain("Substring");
+        expect(tables.memberRefTable.map(r => r.name)).toContain("get_Length");
     });
 });

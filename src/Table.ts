@@ -108,6 +108,13 @@ export class InterfaceImplRow {
     interfaceCI: number = 0;
 }
 
+export class MemberRefRow {
+    classCI: number = 0;
+    nameIndex: number = 0;
+    name: string = "";
+    signatureIndex: number = 0;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -189,4 +196,16 @@ export function getInterfaceImplColumn(
         new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.classIndex = index),
         new CodedIndexColumn(tableStreamHeader, CodedIndex.TypeDefOrRef, (row, index) => row.interfaceCI = index),
     ];
+}
+
+export function getMemberRefColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>): Column<MemberRefRow>[]
+{
+    return [
+        new CodedIndexColumn(tableStreamHeader, CodedIndex.MemberRefParent, (row, index) => row.classCI = index),
+        new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
+        new BlobReferenceColumn(blobHeap.indexSizeBytes, (row, index) => row.signatureIndex = index),
+    ];    
 }

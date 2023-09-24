@@ -1,7 +1,7 @@
 import * as PE from 'pe-library';
 import { getBoolArrayFromBitmask, getNullTerminatedUtf8String, getUtf8String, roundUpToNearest } from './Helpers.js';
 import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables, HeapSizes, MetadataTables } from './Structures.js';
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow } from './Table.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow } from './Table.js';
 import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
 import * as Table from './Table.js'
@@ -170,6 +170,8 @@ export class CliParser {
         offset += interfaceImplReadResult.bytesRead || 0;
         const memberRefReadResult = Table.getRowsFromBytes(MetadataTables.MemberRef, metadataStream, offset, () => new MemberRefRow, Table.getMemberRefColumn(header, stringHeap, blobHeap), header);
         offset += memberRefReadResult.bytesRead || 0;
+        const constantReadResult = Table.getRowsFromBytes(MetadataTables.Constant, metadataStream, offset, () => new ConstantRow(), Table.getConstantColumn(header, blobHeap), header);
+        offset += constantReadResult.bytesRead || 0;
 
         return {
             moduleTable: moduleTableReadResult ? moduleTableReadResult.rows : null,
@@ -180,6 +182,7 @@ export class CliParser {
             paramTable: paramReadResult ? paramReadResult.rows : null,
             interfaceImplTable: interfaceImplReadResult ? interfaceImplReadResult.rows : null,
             memberRefTable: memberRefReadResult ? memberRefReadResult.rows : null,
+            constantTable: constantReadResult ? constantReadResult.rows : null,
         }
     }
 

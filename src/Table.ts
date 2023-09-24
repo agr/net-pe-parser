@@ -115,6 +115,12 @@ export class MemberRefRow {
     signatureIndex: number = 0;
 }
 
+export class ConstantRow {
+    type: number = 0;
+    parentCI: number = 0;
+    valueIndex: number = 0;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -208,4 +214,15 @@ export function getMemberRefColumn(
         new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
         new BlobReferenceColumn(blobHeap.indexSizeBytes, (row, index) => row.signatureIndex = index),
     ];    
+}
+
+export function getConstantColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    blobHeap: Readonly<BinaryHeap>): Column<ConstantRow>[]
+{
+    return [
+        new UintColumn(2, (row, value) => row.type = value),
+        new CodedIndexColumn(tableStreamHeader, CodedIndex.HasConstant, (row, index) => row.parentCI = index),
+        new BlobReferenceColumn(blobHeap.indexSizeBytes, (row, index) => row.valueIndex = index),
+    ];
 }

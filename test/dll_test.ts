@@ -3,6 +3,7 @@ import * as PE from 'pe-library';
 import * as fs from 'fs';
 import * as child_process from 'child_process';
 import { CliParser } from 'src/main.js';
+import { ElementType } from 'src/Structures.js';
 
 const dllPath = './test/dotnet-test/bin/Debug/net7.0/dotnet-test.dll';
 
@@ -135,5 +136,9 @@ describe('DLL file parsing tests', () => {
         if (!tables.memberRefTable) { throw ''; }
         expect(tables.memberRefTable.map(r => r.name)).toContain("Substring");
         expect(tables.memberRefTable.map(r => r.name)).toContain("get_Length");
+        expect(tables.constantTable).not.toBeNull();
+        if (!tables.constantTable) { throw ''; }
+        expect(tables.constantTable.filter(r => r.type == ElementType.CLASS).length).toBeGreaterThan(0);
+        expect(tables.constantTable.filter(r => r.type == ElementType.CLASS).map(r => r.value.getUint32(0, true) == 0).reduce((p: boolean, v: boolean) => p && v, true)).toBeTruthy();
     });
 });

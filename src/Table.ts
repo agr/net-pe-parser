@@ -79,11 +79,15 @@ export class TypeDefTableRow {
     methodListIndex: number = 0;
 }
 
+const NoDataBuffer = new ArrayBuffer(0);
+const NoData = new DataView(NoDataBuffer, 0, 0);
+
 export class FieldTableRow {
     flags: number = 0;
     nameIndex: number = 0;
     name: string = "";
     signatureIndex: number = 0;
+    signatureData: DataView = NoData;
 }
 
 export class MethodDefRow {
@@ -93,6 +97,7 @@ export class MethodDefRow {
     nameIndex: number = 0;
     name: string = "";
     signatureIndex: number = 0;
+    signatureData: DataView = NoData;
     paramListIndex: number = 0;
 }
 
@@ -113,12 +118,14 @@ export class MemberRefRow {
     nameIndex: number = 0;
     name: string = "";
     signatureIndex: number = 0;
+    signatureData: DataView = NoData;
 }
 
 export class ConstantRow {
     type: number = 0;
     parentCI: number = 0;
     valueIndex: number = 0;
+    value: DataView = NoData;
 }
 
 export function getModuleTableColumns(
@@ -166,7 +173,7 @@ export function getFieldTableColumn(
     return [
         new UintColumn(2, (row, value) => row.flags = value),
         new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
-        new BlobReferenceColumn(blobHeap.indexSizeBytes, (row, index) => row.signatureIndex = index),
+        new BlobReferenceColumn(blobHeap, (row, index) => row.signatureIndex = index, (row, data) => row.signatureData = data),
     ];
 }
 
@@ -180,7 +187,7 @@ export function getMethodDefTableColumn(
         new UintColumn(2, (row, value) => row.implFlags = value),
         new UintColumn(2, (row, value) => row.flags = value),
         new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
-        new BlobReferenceColumn(blobHeap.indexSizeBytes, (row, index) => row.signatureIndex = index),
+        new BlobReferenceColumn(blobHeap, (row, index) => row.signatureIndex = index, (row, data) => row.signatureData = data),
         new TableIndexColumn(tableStreamHeader, MetadataTables.Param, (row, index) => row.paramListIndex = index),
     ];
 }
@@ -212,7 +219,7 @@ export function getMemberRefColumn(
     return [
         new CodedIndexColumn(tableStreamHeader, CodedIndex.MemberRefParent, (row, index) => row.classCI = index),
         new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
-        new BlobReferenceColumn(blobHeap.indexSizeBytes, (row, index) => row.signatureIndex = index),
+        new BlobReferenceColumn(blobHeap, (row, index) => row.signatureIndex = index, (row, data) => row.signatureData = data),
     ];    
 }
 
@@ -223,6 +230,6 @@ export function getConstantColumn(
     return [
         new UintColumn(2, (row, value) => row.type = value),
         new CodedIndexColumn(tableStreamHeader, CodedIndex.HasConstant, (row, index) => row.parentCI = index),
-        new BlobReferenceColumn(blobHeap.indexSizeBytes, (row, index) => row.valueIndex = index),
+        new BlobReferenceColumn(blobHeap, (row, index) => row.valueIndex = index, (row, data) => row.value = data),
     ];
 }

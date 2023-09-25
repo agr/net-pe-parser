@@ -154,6 +154,11 @@ export class ClassLayoutRow {
     parentIndex: number = 0;
 }
 
+export class FieldLayoutRow {
+    offset: number = 0;
+    fieldIndex: number = 0;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -299,5 +304,14 @@ export function getClassLayoutColumn(
         new UintColumn(2, (row, value) => row.packingSize = value),
         new UintColumn(4, (row, value) => row.classSize = value),
         new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.parentIndex = index),
+    ];
+}
+
+export function getFieldLayoutColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<FieldLayoutRow>[]
+{
+    return [
+        new UintColumn(4, (row, value) => row.offset = value),
+        new TableIndexColumn(tableStreamHeader, MetadataTables.Field, (row, index) => row.fieldIndex = index),
     ];
 }

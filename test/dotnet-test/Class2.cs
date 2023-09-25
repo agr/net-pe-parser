@@ -1,9 +1,13 @@
+using System.Runtime.InteropServices;
+
 namespace dotnet_test;
 
 public class Class2
 {
     public void AnotherFn(int arg1)
     {
+        var layout = new ExplicitLayout();
+        layout.Prop1 = 21;
     }
 
     public class NestedClass : ISomeInterface {

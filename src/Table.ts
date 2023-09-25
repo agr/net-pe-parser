@@ -148,6 +148,12 @@ export class DeclSecurityRow {
     permissionSet: DataView = NoData;
 }
 
+export class ClassLayoutRow {
+    packingSize: number = 0;
+    classSize: number = 0;
+    parentIndex: number = 0;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -283,5 +289,15 @@ export function getDeclSecurityColumn(
         new UintColumn(2, (row, value) => row.action = value),
         new CodedIndexColumn(tableStreamHeader, CodedIndex.HasDeclSecurity, (row, index) => row.parentCI = index),
         new BlobReferenceColumn(blobHeap, (row, index) => row.permissionSetIndex = index, (row, data) => row.permissionSet = data),
+    ];
+}
+
+export function getClassLayoutColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<ClassLayoutRow>[]
+{
+    return [
+        new UintColumn(2, (row, value) => row.packingSize = value),
+        new UintColumn(4, (row, value) => row.classSize = value),
+        new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.parentIndex = index),
     ];
 }

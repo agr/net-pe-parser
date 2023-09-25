@@ -1,7 +1,7 @@
 import * as PE from 'pe-library';
 import { getBoolArrayFromBitmask, getNullTerminatedUtf8String, getUtf8String, roundUpToNearest } from './Helpers.js';
 import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables, HeapSizes, MetadataTables } from './Structures.js';
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow } from './Table.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow } from './Table.js';
 import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
 import * as Table from './Table.js'
@@ -174,6 +174,8 @@ export class CliParser {
         offset += constantReadResult.bytesRead || 0;
         const customAttributeReadResult = Table.getRowsFromBytes(MetadataTables.CustomAttribute, metadataStream, offset, () => new CustomAttributeRow(), Table.getCustomAttributeColumn(header, blobHeap), header);
         offset += customAttributeReadResult.bytesRead || 0;
+        const fieldMarshalReadResult = Table.getRowsFromBytes(MetadataTables.FieldMarshal, metadataStream, offset, () => new FieldMarshalRow(), Table.getFieldMarshalColumn(header, blobHeap), header);
+        offset += fieldMarshalReadResult.bytesRead || 0;
 
         return {
             moduleTable: moduleTableReadResult ? moduleTableReadResult.rows : null,
@@ -186,6 +188,7 @@ export class CliParser {
             memberRefTable: memberRefReadResult ? memberRefReadResult.rows : null,
             constantTable: constantReadResult ? constantReadResult.rows : null,
             customAttributeTable: customAttributeReadResult ? customAttributeReadResult.rows : null,
+            fieldMarshalTable: fieldMarshalReadResult ? fieldMarshalReadResult.rows : null,
         }
     }
 

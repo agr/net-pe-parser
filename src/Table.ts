@@ -135,6 +135,12 @@ export class CustomAttributeRow {
     value: DataView = NoData;
 }
 
+export class FieldMarshalRow {
+    parentCI: number = 0;
+    nativeTypeIndex: number = 0;
+    nativeType: DataView = NoData;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -249,5 +255,15 @@ export function getCustomAttributeColumn(
         new CodedIndexColumn(tableStreamHeader, CodedIndex.HasCustomAttribute, (row, index) => row.parentCI = index),
         new CodedIndexColumn(tableStreamHeader, CodedIndex.CustomAttributeType, (row, index) => row.typeCI = index),
         new BlobReferenceColumn(blobHeap, (row, index) => row.valueIndex = index, (row, data) => row.value = data),
+    ];
+}
+
+export function getFieldMarshalColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    blobHeap: Readonly<BinaryHeap>): Column<FieldMarshalRow>[]
+{
+    return [
+        new CodedIndexColumn(tableStreamHeader, CodedIndex.HasFieldMarshall, (row, index) => row.parentCI = index),
+        new BlobReferenceColumn(blobHeap, (row, index) => row.nativeTypeIndex = index, (row, data) => row.nativeType = data),
     ];
 }

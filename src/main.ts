@@ -1,7 +1,7 @@
 import * as PE from 'pe-library';
 import { getBoolArrayFromBitmask, getNullTerminatedUtf8String, getUtf8String, roundUpToNearest } from './Helpers.js';
 import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables, HeapSizes, MetadataTables } from './Structures.js';
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow } from './Table.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow } from './Table.js';
 import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
 import * as Table from './Table.js'
@@ -182,6 +182,8 @@ export class CliParser {
         offset += classLayoutReadResult.bytesRead || 0;
         const fieldLayoutReadResult = Table.getRowsFromBytes(MetadataTables.FieldLayout, metadataStream, offset, () => new FieldLayoutRow(), Table.getFieldLayoutColumn(header), header);
         offset += fieldLayoutReadResult.bytesRead || 0;
+        const standAloneSigReadResult = Table.getRowsFromBytes(MetadataTables.StandAloneSig, metadataStream, offset, () => new StandAloneSigRow(), Table.getStandAloneSigColumn(blobHeap), header);
+        offset += standAloneSigReadResult.bytesRead || 0;
 
         return {
             moduleTable: moduleTableReadResult ? moduleTableReadResult.rows : null,
@@ -198,6 +200,7 @@ export class CliParser {
             declSecurityTable: declSecurityReadResult ? declSecurityReadResult.rows : null,
             classLayoutTable: classLayoutReadResult ? classLayoutReadResult.rows : null,
             fieldLayoutTable: fieldLayoutReadResult ? fieldLayoutReadResult.rows : null,
+            standAloneSigTable: standAloneSigReadResult ? standAloneSigReadResult.rows : null,
         }
     }
 

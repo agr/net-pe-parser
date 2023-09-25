@@ -159,6 +159,11 @@ export class FieldLayoutRow {
     fieldIndex: number = 0;
 }
 
+export class StandAloneSigRow {
+    signatureIndex: number = 0;
+    signatureData: DataView = NoData;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -313,5 +318,13 @@ export function getFieldLayoutColumn(
     return [
         new UintColumn(4, (row, value) => row.offset = value),
         new TableIndexColumn(tableStreamHeader, MetadataTables.Field, (row, index) => row.fieldIndex = index),
+    ];
+}
+
+export function getStandAloneSigColumn(
+    blobHeap: Readonly<BinaryHeap>): Column<StandAloneSigRow>[]
+{
+    return [
+        new BlobReferenceColumn(blobHeap, (row, index) => row.signatureIndex = index, (row, data) => row.signatureData = data),
     ];
 }

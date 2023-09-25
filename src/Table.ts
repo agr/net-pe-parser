@@ -164,6 +164,11 @@ export class StandAloneSigRow {
     signatureData: DataView = NoData;
 }
 
+export class EventMapRow {
+    parentIndex: number = 0;
+    eventListIndex: number = 0;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -326,5 +331,14 @@ export function getStandAloneSigColumn(
 {
     return [
         new BlobReferenceColumn(blobHeap, (row, index) => row.signatureIndex = index, (row, data) => row.signatureData = data),
+    ];
+}
+
+export function getEventMapColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<EventMapRow>[]
+{
+    return [
+        new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.parentIndex = index),
+        new TableIndexColumn(tableStreamHeader, MetadataTables.Event, (row, index) => row.eventListIndex = index),
     ];
 }

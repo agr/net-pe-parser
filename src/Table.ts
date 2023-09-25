@@ -141,6 +141,13 @@ export class FieldMarshalRow {
     nativeType: DataView = NoData;
 }
 
+export class DeclSecurityRow {
+    action: number = 0;
+    parentCI: number = 0;
+    permissionSetIndex: number = 0;
+    permissionSet: DataView = NoData;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -265,5 +272,16 @@ export function getFieldMarshalColumn(
     return [
         new CodedIndexColumn(tableStreamHeader, CodedIndex.HasFieldMarshall, (row, index) => row.parentCI = index),
         new BlobReferenceColumn(blobHeap, (row, index) => row.nativeTypeIndex = index, (row, data) => row.nativeType = data),
+    ];
+}
+
+export function getDeclSecurityColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    blobHeap: Readonly<BinaryHeap>): Column<DeclSecurityRow>[]
+{
+    return [
+        new UintColumn(2, (row, value) => row.action = value),
+        new CodedIndexColumn(tableStreamHeader, CodedIndex.HasDeclSecurity, (row, index) => row.parentCI = index),
+        new BlobReferenceColumn(blobHeap, (row, index) => row.permissionSetIndex = index, (row, data) => row.permissionSet = data),
     ];
 }

@@ -1,7 +1,7 @@
 import * as PE from 'pe-library';
 import { getBoolArrayFromBitmask, getNullTerminatedUtf8String, getUtf8String, roundUpToNearest } from './Helpers.js';
 import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables, HeapSizes, MetadataTables } from './Structures.js';
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow } from './Table.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow } from './Table.js';
 import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
 import * as Table from './Table.js'
@@ -176,6 +176,8 @@ export class CliParser {
         offset += customAttributeReadResult.bytesRead || 0;
         const fieldMarshalReadResult = Table.getRowsFromBytes(MetadataTables.FieldMarshal, metadataStream, offset, () => new FieldMarshalRow(), Table.getFieldMarshalColumn(header, blobHeap), header);
         offset += fieldMarshalReadResult.bytesRead || 0;
+        const declSecurityReadResult = Table.getRowsFromBytes(MetadataTables.DeclSecurity, metadataStream, offset, () => new DeclSecurityRow, Table.getDeclSecurityColumn(header, blobHeap), header);
+        offset += declSecurityReadResult.bytesRead || 0;
 
         return {
             moduleTable: moduleTableReadResult ? moduleTableReadResult.rows : null,
@@ -189,6 +191,7 @@ export class CliParser {
             constantTable: constantReadResult ? constantReadResult.rows : null,
             customAttributeTable: customAttributeReadResult ? customAttributeReadResult.rows : null,
             fieldMarshalTable: fieldMarshalReadResult ? fieldMarshalReadResult.rows : null,
+            declSecurityTable: declSecurityReadResult ? declSecurityReadResult.rows : null,
         }
     }
 

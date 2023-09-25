@@ -1,7 +1,7 @@
 import * as PE from 'pe-library';
 import { getBoolArrayFromBitmask, getNullTerminatedUtf8String, getUtf8String, roundUpToNearest } from './Helpers.js';
 import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables, HeapSizes, MetadataTables } from './Structures.js';
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow } from './Table.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow } from './Table.js';
 import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
 import * as Table from './Table.js'
@@ -186,6 +186,8 @@ export class CliParser {
         offset += standAloneSigReadResult.bytesRead || 0;
         const eventMapReadResult = Table.getRowsFromBytes(MetadataTables.EventMap, metadataStream, offset, () => new EventMapRow(), Table.getEventMapColumn(header), header);
         offset += eventMapReadResult.bytesRead || 0;
+        const eventReadResult = Table.getRowsFromBytes(MetadataTables.Event, metadataStream, offset, () => new EventRow(), Table.getEventColumn(header, stringHeap), header);
+        offset += eventReadResult.bytesRead || 0;
 
         return {
             moduleTable: moduleTableReadResult ? moduleTableReadResult.rows : null,
@@ -204,6 +206,7 @@ export class CliParser {
             fieldLayoutTable: fieldLayoutReadResult ? fieldLayoutReadResult.rows : null,
             standAloneSigTable: standAloneSigReadResult ? standAloneSigReadResult.rows : null,
             eventMapTable: eventMapReadResult ? eventMapReadResult.rows : null,
+            eventTable: eventReadResult ? eventReadResult.rows : null,
         }
     }
 

@@ -149,5 +149,8 @@ describe('DLL file parsing tests', () => {
         expect(tables.eventMapTable).not.toBeNull();
         if (!tables.eventMapTable) { throw ''; }
         expect(tables.eventMapTable.length).toBeGreaterThan(0);
+        expect(tables.eventTable).not.toBeNull();
+        if (!tables.eventTable) { throw ''; }
+        expect(tables.eventTable.map(r => r.name)).toContain("OnEvent");
     });
 });

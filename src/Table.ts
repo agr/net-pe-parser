@@ -169,6 +169,13 @@ export class EventMapRow {
     eventListIndex: number = 0;
 }
 
+export class EventRow {
+    eventFlags: number = 0;
+    nameIndex: number = 0;
+    name: string = "";
+    eventTypeCI: number = 0;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -340,5 +347,16 @@ export function getEventMapColumn(
     return [
         new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.parentIndex = index),
         new TableIndexColumn(tableStreamHeader, MetadataTables.Event, (row, index) => row.eventListIndex = index),
+    ];
+}
+
+export function getEventColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>): Column<EventRow>[]
+{
+    return [
+        new UintColumn(2, (row, value) => row.eventFlags = value),
+        new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
+        new CodedIndexColumn(tableStreamHeader, CodedIndex.TypeDefOrRef, (row, index) => row.eventTypeCI = index),
     ];
 }

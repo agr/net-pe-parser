@@ -128,6 +128,13 @@ export class ConstantRow {
     value: DataView = NoData;
 }
 
+export class CustomAttributeRow {
+    parentCI: number = 0;
+    typeCI: number = 0;
+    valueIndex: number = 0;
+    value: DataView = NoData;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -230,6 +237,17 @@ export function getConstantColumn(
     return [
         new UintColumn(2, (row, value) => row.type = value),
         new CodedIndexColumn(tableStreamHeader, CodedIndex.HasConstant, (row, index) => row.parentCI = index),
+        new BlobReferenceColumn(blobHeap, (row, index) => row.valueIndex = index, (row, data) => row.value = data),
+    ];
+}
+
+export function getCustomAttributeColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    blobHeap: Readonly<BinaryHeap>): Column<CustomAttributeRow>[]
+{
+    return [
+        new CodedIndexColumn(tableStreamHeader, CodedIndex.HasCustomAttribute, (row, index) => row.parentCI = index),
+        new CodedIndexColumn(tableStreamHeader, CodedIndex.CustomAttributeType, (row, index) => row.typeCI = index),
         new BlobReferenceColumn(blobHeap, (row, index) => row.valueIndex = index, (row, data) => row.value = data),
     ];
 }

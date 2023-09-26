@@ -152,5 +152,13 @@ describe('DLL file parsing tests', () => {
         expect(tables.eventTable).not.toBeNull();
         if (!tables.eventTable) { throw ''; }
         expect(tables.eventTable.map(r => r.name)).toContain("OnEvent");
+        expect(tables.propertyMapTable).not.toBeNull();
+        if (!tables.propertyMapTable) { throw ''; }
+        expect(tables.propertyMapTable.length).toBeGreaterThan(0);
+        expect(tables.propertyTable).not.toBeNull();
+        if (!tables.propertyTable) { throw ''; }
+        expect(tables.propertyTable.map(r => r.name)).toContain("SomeProperty");
+        expect(tables.propertyTable.map(r => r.name)).toContain("StaticIntProperty");
+        expect(tables.propertyTable.map(r => r.name)).toContain("StringProperty");
     });
 });

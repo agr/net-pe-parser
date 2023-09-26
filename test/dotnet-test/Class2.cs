@@ -4,6 +4,9 @@ namespace dotnet_test;
 
 public class Class2
 {
+    public static int StaticIntProperty { get; set; } = 42;
+    public string StringProperty { get; set; } = "Foobar";
+
     public void AnotherFn(int arg1)
     {
         var layout = new ExplicitLayout();

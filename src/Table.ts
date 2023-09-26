@@ -176,6 +176,19 @@ export class EventRow {
     eventTypeCI: number = 0;
 }
 
+export class PropertyMapRow {
+    parentIndex: number = 0;
+    propertyListIndex: number = 0;
+}
+
+export class PropertyRow {
+    flags: number = 0;
+    nameIndex: number = 0;
+    name: string = "";
+    typeIndex: number = 0;
+    typeData: DataView = NoData;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -358,5 +371,26 @@ export function getEventColumn(
         new UintColumn(2, (row, value) => row.eventFlags = value),
         new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
         new CodedIndexColumn(tableStreamHeader, CodedIndex.TypeDefOrRef, (row, index) => row.eventTypeCI = index),
+    ];
+}
+
+export function getPropertyMapColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<PropertyMapRow>[]
+{
+    return [
+        new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.parentIndex = index),
+        new TableIndexColumn(tableStreamHeader, MetadataTables.Property, (row, index) => row.propertyListIndex = index),
+    ];
+}
+
+export function getPropertyColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>): Column<PropertyRow>[]
+{
+    return [
+        new UintColumn(2, (row, value) => row.flags = value),
+        new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
+        new BlobReferenceColumn(blobHeap, (row, index) => row.typeIndex = index, (row, data) => row.typeData = data),
     ];
 }

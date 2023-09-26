@@ -189,6 +189,12 @@ export class PropertyRow {
     typeData: DataView = NoData;
 }
 
+export class MethodSemanticsRow {
+    semantics: number = 0;
+    methodIndex: number = 0;
+    associationCI: number = 0;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -384,7 +390,6 @@ export function getPropertyMapColumn(
 }
 
 export function getPropertyColumn(
-    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
     stringHeap: Readonly<StringHeap>,
     blobHeap: Readonly<BinaryHeap>): Column<PropertyRow>[]
 {
@@ -392,5 +397,15 @@ export function getPropertyColumn(
         new UintColumn(2, (row, value) => row.flags = value),
         new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
         new BlobReferenceColumn(blobHeap, (row, index) => row.typeIndex = index, (row, data) => row.typeData = data),
+    ];
+}
+
+export function getMethodSemanticsColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<MethodSemanticsRow>[]
+{
+    return [
+        new UintColumn(2, (row, value) => row.semantics = value),
+        new TableIndexColumn(tableStreamHeader, MetadataTables.MethodDef, (row, index) => row.methodIndex = index),
+        new CodedIndexColumn(tableStreamHeader, CodedIndex.HasSemantics, (row, index) => row.associationCI = index),
     ];
 }

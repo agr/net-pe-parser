@@ -160,5 +160,8 @@ describe('DLL file parsing tests', () => {
         expect(tables.propertyTable.map(r => r.name)).toContain("SomeProperty");
         expect(tables.propertyTable.map(r => r.name)).toContain("StaticIntProperty");
         expect(tables.propertyTable.map(r => r.name)).toContain("StringProperty");
+        expect(tables.methodSemanticsTable).not.toBeNull();
+        if (!tables.methodSemanticsTable) { throw ''; }
+        expect(tables.methodSemanticsTable.length).toBeGreaterThan(0);
     });
 });

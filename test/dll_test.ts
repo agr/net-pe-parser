@@ -163,5 +163,8 @@ describe('DLL file parsing tests', () => {
         expect(tables.methodSemanticsTable).not.toBeNull();
         if (!tables.methodSemanticsTable) { throw ''; }
         expect(tables.methodSemanticsTable.length).toBeGreaterThan(0);
+        expect(tables.methodImplTable).not.toBeNull();
+        if (!tables.methodImplTable) { throw ''; }
+        expect(tables.methodImplTable.length).toBeGreaterThan(0);
     });
 });

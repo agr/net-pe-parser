@@ -195,6 +195,12 @@ export class MethodSemanticsRow {
     associationCI: number = 0;
 }
 
+export class MethodImplRow {
+    classIndex: number = 0;
+    methodBodyCI: number = 0;
+    methodDeclarationCI: number = 0;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -407,5 +413,15 @@ export function getMethodSemanticsColumn(
         new UintColumn(2, (row, value) => row.semantics = value),
         new TableIndexColumn(tableStreamHeader, MetadataTables.MethodDef, (row, index) => row.methodIndex = index),
         new CodedIndexColumn(tableStreamHeader, CodedIndex.HasSemantics, (row, index) => row.associationCI = index),
+    ];
+}
+
+export function getMethodImplColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<MethodImplRow>[]
+{
+    return [
+        new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.classIndex = index),
+        new CodedIndexColumn(tableStreamHeader, CodedIndex.MethodDefOrRef, (row, index) => row.methodBodyCI = index),
+        new CodedIndexColumn(tableStreamHeader, CodedIndex.MethodDefOrRef, (row, index) => row.methodDeclarationCI = index),
     ];
 }

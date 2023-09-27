@@ -194,6 +194,8 @@ export class CliParser {
         offset += propertyReadResult.bytesRead || 0;
         const methodSemanticsReadResult = Table.getRowsFromBytes(MetadataTables.MethodSemantics, metadataStream, offset, () => new MethodSemanticsRow(), Table.getMethodSemanticsColumn(header), header);
         offset += methodSemanticsReadResult.bytesRead || 0;
+        const methodImplReadResult = Table.getRowsFromBytes(MetadataTables.MethodImpl, metadataStream, offset, () => new Table.MethodImplRow(), Table.getMethodImplColumn(header), header);
+        offset += methodImplReadResult.bytesRead || 0;
 
         return {
             moduleTable: moduleTableReadResult ? moduleTableReadResult.rows : null,
@@ -216,6 +218,7 @@ export class CliParser {
             propertyMapTable: propertyMapReadResult ? propertyMapReadResult.rows : null,
             propertyTable: propertyReadResult ? propertyReadResult.rows : null,
             methodSemanticsTable: methodSemanticsReadResult ? methodSemanticsReadResult.rows : null,
+            methodImplTable: methodImplReadResult ? methodImplReadResult.rows : null,
         }
     }
 

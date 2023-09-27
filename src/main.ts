@@ -1,7 +1,7 @@
 import * as PE from 'pe-library';
 import { getBoolArrayFromBitmask, getNullTerminatedUtf8String, getUtf8String, roundUpToNearest } from './Helpers.js';
 import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables, HeapSizes, MetadataTables } from './Structures.js';
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow } from './Table.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow } from './Table.js';
 import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
 import * as Table from './Table.js'
@@ -194,8 +194,10 @@ export class CliParser {
         offset += propertyReadResult.bytesRead || 0;
         const methodSemanticsReadResult = Table.getRowsFromBytes(MetadataTables.MethodSemantics, metadataStream, offset, () => new MethodSemanticsRow(), Table.getMethodSemanticsColumn(header), header);
         offset += methodSemanticsReadResult.bytesRead || 0;
-        const methodImplReadResult = Table.getRowsFromBytes(MetadataTables.MethodImpl, metadataStream, offset, () => new Table.MethodImplRow(), Table.getMethodImplColumn(header), header);
+        const methodImplReadResult = Table.getRowsFromBytes(MetadataTables.MethodImpl, metadataStream, offset, () => new MethodImplRow(), Table.getMethodImplColumn(header), header);
         offset += methodImplReadResult.bytesRead || 0;
+        const moduleRefReadResult = Table.getRowsFromBytes(MetadataTables.ModuleRef, metadataStream, offset, () => new ModuleRefRow(), Table.getModuleRefColumn(stringHeap), header);
+        offset += moduleRefReadResult.bytesRead || 0;
 
         return {
             moduleTable: moduleTableReadResult ? moduleTableReadResult.rows : null,
@@ -219,6 +221,7 @@ export class CliParser {
             propertyTable: propertyReadResult ? propertyReadResult.rows : null,
             methodSemanticsTable: methodSemanticsReadResult ? methodSemanticsReadResult.rows : null,
             methodImplTable: methodImplReadResult ? methodImplReadResult.rows : null,
+            moduleRefTable: moduleRefReadResult ? moduleRefReadResult.rows : null,
         }
     }
 

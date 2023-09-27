@@ -201,6 +201,11 @@ export class MethodImplRow {
     methodDeclarationCI: number = 0;
 }
 
+export class ModuleRefRow {
+    nameIndex: number = 0;
+    name: string = "";
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -423,5 +428,13 @@ export function getMethodImplColumn(
         new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.classIndex = index),
         new CodedIndexColumn(tableStreamHeader, CodedIndex.MethodDefOrRef, (row, index) => row.methodBodyCI = index),
         new CodedIndexColumn(tableStreamHeader, CodedIndex.MethodDefOrRef, (row, index) => row.methodDeclarationCI = index),
+    ];
+}
+
+export function getModuleRefColumn(
+    stringHeap: Readonly<StringHeap>): Column<ModuleRefRow>[]
+{
+    return [
+        new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
     ];
 }

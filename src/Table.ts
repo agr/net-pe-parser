@@ -206,6 +206,11 @@ export class ModuleRefRow {
     name: string = "";
 }
 
+export class TypeSpecRow {
+    signatureIndex: number = 0;
+    signatureData: DataView = NoData;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -436,5 +441,13 @@ export function getModuleRefColumn(
 {
     return [
         new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
+    ];
+}
+
+export function getTypeSpecColumn(
+    blobHeap: Readonly<BinaryHeap>): Column<TypeSpecRow>[]
+{
+    return [
+        new BlobReferenceColumn(blobHeap, (row, index) => row.signatureIndex = index, (row, data) => row.signatureData = data),
     ];
 }

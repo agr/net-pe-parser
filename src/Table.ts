@@ -211,6 +211,14 @@ export class TypeSpecRow {
     signatureData: DataView = NoData;
 }
 
+export class ImplMapRow {
+    mappingFlags: number = 0;
+    memberForwardedCI: number = 0;
+    importNameIndex: number = 0;
+    importName: string = "";
+    importScopeIndex: number = 0;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -449,5 +457,17 @@ export function getTypeSpecColumn(
 {
     return [
         new BlobReferenceColumn(blobHeap, (row, index) => row.signatureIndex = index, (row, data) => row.signatureData = data),
+    ];
+}
+
+export function getImplMapColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>): Column<ImplMapRow>[]
+{
+    return [
+        new UintColumn(2, (row, value) => row.mappingFlags = value),
+        new CodedIndexColumn(tableStreamHeader, CodedIndex.MemberForwarded, (row, index) => row.memberForwardedCI = index),
+        new StringReferenceColumn(stringHeap, (row, index) => row.importNameIndex = index, (row, value) => row.importName = value),
+        new TableIndexColumn(tableStreamHeader, MetadataTables.ModuleRef, (row, index) => row.importScopeIndex = index),
     ];
 }

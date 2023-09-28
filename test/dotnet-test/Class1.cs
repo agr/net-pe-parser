@@ -1,4 +1,6 @@
-﻿namespace dotnet_test;
+﻿using System.Runtime.InteropServices;
+
+namespace dotnet_test;
 
 public class Class1
 {
@@ -7,6 +9,9 @@ public class Class1
     const Class1 ClassConst = null;
 
     public event EventHandler? OnEvent;
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetDC(IntPtr hWnd);
 
     public string TestFn(int arg1, string arg2)
     {

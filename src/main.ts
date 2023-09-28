@@ -1,7 +1,7 @@
 import * as PE from 'pe-library';
 import { getBoolArrayFromBitmask, getNullTerminatedUtf8String, getUtf8String, roundUpToNearest } from './Helpers.js';
 import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables, HeapSizes, MetadataTables } from './Structures.js';
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow } from './Table.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow } from './Table.js';
 import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
 import * as Table from './Table.js'
@@ -200,6 +200,8 @@ export class CliParser {
         offset += moduleRefReadResult.bytesRead || 0;
         const typeSpecReadResult = Table.getRowsFromBytes(MetadataTables.TypeSpec, metadataStream, offset, () => new TypeSpecRow, Table.getTypeSpecColumn(blobHeap), header);
         offset += typeSpecReadResult.bytesRead || 0;
+        const implMapReadResult = Table.getRowsFromBytes(MetadataTables.ImplMap, metadataStream, offset, () => new ImplMapRow(), Table.getImplMapColumn(header, stringHeap), header);
+        offset += implMapReadResult.bytesRead || 0;
 
         return {
             moduleTable: moduleTableReadResult ? moduleTableReadResult.rows : null,
@@ -225,6 +227,7 @@ export class CliParser {
             methodImplTable: methodImplReadResult ? methodImplReadResult.rows : null,
             moduleRefTable: moduleRefReadResult ? moduleRefReadResult.rows : null,
             typeSpecTable: typeSpecReadResult ? typeSpecReadResult.rows : null,
+            implMapTable: implMapReadResult ? implMapReadResult.rows : null,
         }
     }
 

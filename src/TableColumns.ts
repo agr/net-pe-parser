@@ -10,7 +10,7 @@ import { UintColumn } from "./Columns/UintColumn.js";
 import { GuidHeap } from "./GuidHeap.js";
 import { StringHeap } from "./StringHeap.js";
 import { CliMetadataTableStreamHeader, MetadataTables } from "./Structures.js";
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, AssemblyOsRow, AssemblyRefRow } from "./Tables.js";
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, AssemblyOsRow, AssemblyRefRow, AssemblyRefProcessorRow } from "./Tables.js";
 
 export interface GetColumns<TRow> {
     (tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
@@ -400,5 +400,17 @@ export function AssemblyRef(
         new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
         new StringReferenceColumn(stringHeap, (row, index) => row.cultureIndex = index, (row, value) => row.culture = value),
         new BlobReferenceColumn(blobHeap, (row, index) => row.hashValueIndex = index, (row, data) => row.hashValueData = data),
+    ];
+}
+
+export function AssemblyRefProcessor(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<AssemblyRefProcessorRow>[]
+{
+    return [
+        new UintColumn(4, (row, value) => row.processor = value),
+        new TableIndexColumn(tableStreamHeader, MetadataTables.AssemblyRef, (row, index) => row.assemblyRefIndex = index),
     ];
 }

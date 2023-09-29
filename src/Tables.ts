@@ -254,3 +254,8 @@ export class AssemblyRefRow {
     hashValueIndex: number = 0;
     hashValueData: DataView = NoData;
 }
+
+export class AssemblyRefProcessorRow {
+    processor: number = 0;
+    assemblyRefIndex: number = 0;
+}

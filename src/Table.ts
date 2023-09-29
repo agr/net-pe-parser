@@ -224,6 +224,21 @@ export class FieldRvaRow {
     fieldIndex: number = 0;
 }
 
+export class AssemblyRow {
+    hashAlgId: number = 0;
+    majorVersion: number = 0;
+    minorVersion: number = 0;
+    buildNumber: number = 0;
+    revisionNumber: number = 0;
+    flags: number = 0;
+    publicKeyIndex: number = 0;
+    publicKeyData: DataView = NoData;
+    nameIndex: number = 0;
+    name: string = "";
+    cultureIndex: number = 0;
+    culture: string = "";
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -483,5 +498,22 @@ export function getFieldRvaColumn(
     return[
         new UintColumn(4, (row, value) => row.rva = value),
         new TableIndexColumn(tableStreamHeader, MetadataTables.Field, (row, index) => row.fieldIndex = index),
+    ];
+}
+
+export function getAssemblyColumn(
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>): Column<AssemblyRow>[]
+{
+    return [
+        new UintColumn(4, (row, value) => row.hashAlgId = value),
+        new UintColumn(2, (row, value) => row.majorVersion = value),
+        new UintColumn(2, (row, value) => row.minorVersion = value),
+        new UintColumn(2, (row, value) => row.buildNumber = value),
+        new UintColumn(2, (row, value) => row.revisionNumber = value),
+        new UintColumn(4, (row, value) => row.flags = value),
+        new BlobReferenceColumn(blobHeap, (row, index) => row.publicKeyIndex = index, (row, data) => row.publicKeyData = data),
+        new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
+        new StringReferenceColumn(stringHeap, (row, index) => row.cultureIndex = index, (row, value) => row.culture = value),
     ];
 }

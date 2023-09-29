@@ -169,5 +169,9 @@ describe('DLL file parsing tests', () => {
         expect(tables.implMapTable).not.toBeNull();
         if (!tables.implMapTable) { throw ''; }
         expect(tables.implMapTable.length).toBeGreaterThan(0);
+        expect(tables.assemblyTable).not.toBeNull();
+        if (!tables.assemblyTable) { throw ''; }
+        expect(tables.assemblyTable.length).toBe(1);
+        expect(tables.assemblyTable[0].name).toBe('dotnet-test');
     });
 });

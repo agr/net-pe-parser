@@ -6,6 +6,7 @@ import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
 import * as Table from './Table.js'
 import { BinaryHeap } from './BinaryHeap.js';
+import { Column } from './Columns/Column.js';
 
 export class CliParser {
     public static getCliHeader(exe: PE.NtExecutable): Readonly<CliHeader> | null {
@@ -154,56 +155,42 @@ export class CliParser {
         const blobHeap = new BinaryHeap(blobHeapStream, header.heapSizes & HeapSizes.BlobStreamUses32BitIndexes ? 4 : 2);
 
         let offset = headerReadResult.totalBytesRead;
-        const moduleTableReadResult = Table.getRowsFromBytes(MetadataTables.Module, metadataStream, offset, () => new ModuleTableRow(), Table.getModuleTableColumns(stringHeap, guidHeap), header);
-        offset += moduleTableReadResult.bytesRead || 0;
-        const typeRefTableReadResult = Table.getRowsFromBytes(MetadataTables.TypeRef, metadataStream, offset, () => new TypeRefTableRow(), Table.getTypeRefTableColumn(header, stringHeap), header);
-        offset += typeRefTableReadResult.bytesRead || 0;
-        const typeDefTableReadResult = Table.getRowsFromBytes(MetadataTables.TypeDef, metadataStream, offset, () => new TypeDefTableRow(), Table.getTypeDefTableColumn(header, stringHeap), header);
-        offset += typeDefTableReadResult.bytesRead || 0;
-        const fieldTableReadResult = Table.getRowsFromBytes(MetadataTables.Field, metadataStream, offset, () => new FieldTableRow(), Table.getFieldTableColumn(stringHeap, blobHeap), header);
-        offset += fieldTableReadResult.bytesRead || 0;
-        const methodDefReadResult = Table.getRowsFromBytes(MetadataTables.MethodDef, metadataStream, offset, () => new MethodDefRow(), Table.getMethodDefTableColumn(header, stringHeap, blobHeap), header);
-        offset += methodDefReadResult.bytesRead || 0;
-        const paramReadResult = Table.getRowsFromBytes(MetadataTables.Param, metadataStream, offset, () => new ParamRow(), Table.getParamTableColumn(stringHeap), header);
-        offset += paramReadResult.bytesRead || 0;
-        const interfaceImplReadResult = Table.getRowsFromBytes(MetadataTables.InterfaceImpl, metadataStream, offset, () => new InterfaceImplRow(), Table.getInterfaceImplColumn(header), header);
-        offset += interfaceImplReadResult.bytesRead || 0;
-        const memberRefReadResult = Table.getRowsFromBytes(MetadataTables.MemberRef, metadataStream, offset, () => new MemberRefRow, Table.getMemberRefColumn(header, stringHeap, blobHeap), header);
-        offset += memberRefReadResult.bytesRead || 0;
-        const constantReadResult = Table.getRowsFromBytes(MetadataTables.Constant, metadataStream, offset, () => new ConstantRow(), Table.getConstantColumn(header, blobHeap), header);
-        offset += constantReadResult.bytesRead || 0;
-        const customAttributeReadResult = Table.getRowsFromBytes(MetadataTables.CustomAttribute, metadataStream, offset, () => new CustomAttributeRow(), Table.getCustomAttributeColumn(header, blobHeap), header);
-        offset += customAttributeReadResult.bytesRead || 0;
-        const fieldMarshalReadResult = Table.getRowsFromBytes(MetadataTables.FieldMarshal, metadataStream, offset, () => new FieldMarshalRow(), Table.getFieldMarshalColumn(header, blobHeap), header);
-        offset += fieldMarshalReadResult.bytesRead || 0;
-        const declSecurityReadResult = Table.getRowsFromBytes(MetadataTables.DeclSecurity, metadataStream, offset, () => new DeclSecurityRow, Table.getDeclSecurityColumn(header, blobHeap), header);
-        offset += declSecurityReadResult.bytesRead || 0;
-        const classLayoutReadResult = Table.getRowsFromBytes(MetadataTables.ClassLayout, metadataStream, offset, () => new ClassLayoutRow(), Table.getClassLayoutColumn(header), header);
-        offset += classLayoutReadResult.bytesRead || 0;
-        const fieldLayoutReadResult = Table.getRowsFromBytes(MetadataTables.FieldLayout, metadataStream, offset, () => new FieldLayoutRow(), Table.getFieldLayoutColumn(header), header);
-        offset += fieldLayoutReadResult.bytesRead || 0;
-        const standAloneSigReadResult = Table.getRowsFromBytes(MetadataTables.StandAloneSig, metadataStream, offset, () => new StandAloneSigRow(), Table.getStandAloneSigColumn(blobHeap), header);
-        offset += standAloneSigReadResult.bytesRead || 0;
-        const eventMapReadResult = Table.getRowsFromBytes(MetadataTables.EventMap, metadataStream, offset, () => new EventMapRow(), Table.getEventMapColumn(header), header);
-        offset += eventMapReadResult.bytesRead || 0;
-        const eventReadResult = Table.getRowsFromBytes(MetadataTables.Event, metadataStream, offset, () => new EventRow(), Table.getEventColumn(header, stringHeap), header);
-        offset += eventReadResult.bytesRead || 0;
-        const propertyMapReadResult = Table.getRowsFromBytes(MetadataTables.PropertyMap, metadataStream, offset, () => new PropertyMapRow(), Table.getPropertyMapColumn(header), header);
-        offset += propertyMapReadResult.bytesRead || 0;
-        const propertyReadResult = Table.getRowsFromBytes(MetadataTables.Property, metadataStream, offset, () => new PropertyRow(), Table.getPropertyColumn(stringHeap, blobHeap), header);
-        offset += propertyReadResult.bytesRead || 0;
-        const methodSemanticsReadResult = Table.getRowsFromBytes(MetadataTables.MethodSemantics, metadataStream, offset, () => new MethodSemanticsRow(), Table.getMethodSemanticsColumn(header), header);
-        offset += methodSemanticsReadResult.bytesRead || 0;
-        const methodImplReadResult = Table.getRowsFromBytes(MetadataTables.MethodImpl, metadataStream, offset, () => new MethodImplRow(), Table.getMethodImplColumn(header), header);
-        offset += methodImplReadResult.bytesRead || 0;
-        const moduleRefReadResult = Table.getRowsFromBytes(MetadataTables.ModuleRef, metadataStream, offset, () => new ModuleRefRow(), Table.getModuleRefColumn(stringHeap), header);
-        offset += moduleRefReadResult.bytesRead || 0;
-        const typeSpecReadResult = Table.getRowsFromBytes(MetadataTables.TypeSpec, metadataStream, offset, () => new TypeSpecRow, Table.getTypeSpecColumn(blobHeap), header);
-        offset += typeSpecReadResult.bytesRead || 0;
-        const implMapReadResult = Table.getRowsFromBytes(MetadataTables.ImplMap, metadataStream, offset, () => new ImplMapRow(), Table.getImplMapColumn(header, stringHeap), header);
-        offset += implMapReadResult.bytesRead || 0;
-        const fieldRvaReadResult = Table.getRowsFromBytes(MetadataTables.FieldRVA, metadataStream, offset, () => new FieldRvaRow(), Table.getFieldRvaColumn(header), header);
-        offset += fieldRvaReadResult.bytesRead || 0;
+
+        function readTable<TRow>(
+            table: MetadataTables,
+            createRow: () => TRow,
+            columns: Column<TRow>[]): Table.Table<TRow>
+        {
+            const result = Table.getRowsFromBytes(table, metadataStream!, offset, createRow, columns, header);
+            offset += result.bytesRead || 0;
+            return result;
+        }
+
+        const moduleTableReadResult = readTable(MetadataTables.Module, () => new ModuleTableRow(), Table.getModuleTableColumns(stringHeap, guidHeap));
+        const typeRefTableReadResult = readTable(MetadataTables.TypeRef, () => new TypeRefTableRow(), Table.getTypeRefTableColumn(header, stringHeap));
+        const typeDefTableReadResult = readTable(MetadataTables.TypeDef, () => new TypeDefTableRow(), Table.getTypeDefTableColumn(header, stringHeap));
+        const fieldTableReadResult = readTable(MetadataTables.Field, () => new FieldTableRow(), Table.getFieldTableColumn(stringHeap, blobHeap));
+        const methodDefReadResult = readTable(MetadataTables.MethodDef, () => new MethodDefRow(), Table.getMethodDefTableColumn(header, stringHeap, blobHeap));
+        const paramReadResult = readTable(MetadataTables.Param, () => new ParamRow(), Table.getParamTableColumn(stringHeap));
+        const interfaceImplReadResult = readTable(MetadataTables.InterfaceImpl, () => new InterfaceImplRow(), Table.getInterfaceImplColumn(header));
+        const memberRefReadResult = readTable(MetadataTables.MemberRef, () => new MemberRefRow, Table.getMemberRefColumn(header, stringHeap, blobHeap));
+        const constantReadResult = readTable(MetadataTables.Constant, () => new ConstantRow(), Table.getConstantColumn(header, blobHeap));
+        const customAttributeReadResult = readTable(MetadataTables.CustomAttribute, () => new CustomAttributeRow(), Table.getCustomAttributeColumn(header, blobHeap));
+        const fieldMarshalReadResult = readTable(MetadataTables.FieldMarshal, () => new FieldMarshalRow(), Table.getFieldMarshalColumn(header, blobHeap));
+        const declSecurityReadResult = readTable(MetadataTables.DeclSecurity, () => new DeclSecurityRow, Table.getDeclSecurityColumn(header, blobHeap));
+        const classLayoutReadResult = readTable(MetadataTables.ClassLayout, () => new ClassLayoutRow(), Table.getClassLayoutColumn(header));
+        const fieldLayoutReadResult = readTable(MetadataTables.FieldLayout, () => new FieldLayoutRow(), Table.getFieldLayoutColumn(header));
+        const standAloneSigReadResult = readTable(MetadataTables.StandAloneSig, () => new StandAloneSigRow(), Table.getStandAloneSigColumn(blobHeap));
+        const eventMapReadResult = readTable(MetadataTables.EventMap, () => new EventMapRow(), Table.getEventMapColumn(header));
+        const eventReadResult = readTable(MetadataTables.Event, () => new EventRow(), Table.getEventColumn(header, stringHeap));
+        const propertyMapReadResult = readTable(MetadataTables.PropertyMap, () => new PropertyMapRow(), Table.getPropertyMapColumn(header));
+        const propertyReadResult = readTable(MetadataTables.Property, () => new PropertyRow(), Table.getPropertyColumn(stringHeap, blobHeap));
+        const methodSemanticsReadResult = readTable(MetadataTables.MethodSemantics, () => new MethodSemanticsRow(), Table.getMethodSemanticsColumn(header));
+        const methodImplReadResult = readTable(MetadataTables.MethodImpl, () => new MethodImplRow(), Table.getMethodImplColumn(header));
+        const moduleRefReadResult = readTable(MetadataTables.ModuleRef, () => new ModuleRefRow(), Table.getModuleRefColumn(stringHeap));
+        const typeSpecReadResult = readTable(MetadataTables.TypeSpec, () => new TypeSpecRow, Table.getTypeSpecColumn(blobHeap));
+        const implMapReadResult = readTable(MetadataTables.ImplMap, () => new ImplMapRow(), Table.getImplMapColumn(header, stringHeap));
+        const fieldRvaReadResult = readTable(MetadataTables.FieldRVA, () => new FieldRvaRow(), Table.getFieldRvaColumn(header));
 
         return {
             moduleTable: moduleTableReadResult ? moduleTableReadResult.rows : null,

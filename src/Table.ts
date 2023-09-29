@@ -219,6 +219,11 @@ export class ImplMapRow {
     importScopeIndex: number = 0;
 }
 
+export class FieldRvaRow {
+    rva: number = 0;
+    fieldIndex: number = 0;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -469,5 +474,14 @@ export function getImplMapColumn(
         new CodedIndexColumn(tableStreamHeader, CodedIndex.MemberForwarded, (row, index) => row.memberForwardedCI = index),
         new StringReferenceColumn(stringHeap, (row, index) => row.importNameIndex = index, (row, value) => row.importName = value),
         new TableIndexColumn(tableStreamHeader, MetadataTables.ModuleRef, (row, index) => row.importScopeIndex = index),
+    ];
+}
+
+export function getFieldRvaColumn(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<FieldRvaRow>[]
+{
+    return[
+        new UintColumn(4, (row, value) => row.rva = value),
+        new TableIndexColumn(tableStreamHeader, MetadataTables.Field, (row, index) => row.fieldIndex = index),
     ];
 }

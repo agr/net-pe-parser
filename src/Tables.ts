@@ -259,3 +259,10 @@ export class AssemblyRefProcessorRow {
     processor: number = 0;
     assemblyRefIndex: number = 0;
 }
+
+export class AssemblyRefOsRow {
+    osPlarformId: number = 0;
+    osMajorVersion: number = 0;
+    osMinorVersion: number = 0;
+    assemblyRefIndex: number = 0;
+}

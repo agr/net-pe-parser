@@ -1,7 +1,7 @@
 import * as PE from 'pe-library';
 import { getBoolArrayFromBitmask, getNullTerminatedUtf8String, getUtf8String, roundUpToNearest } from './Helpers.js';
 import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables, HeapSizes, MetadataTables } from './Structures.js';
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, getRowsFromBytes, AssemblyOsRow, AssemblyRefRow, AssemblyRefProcessorRow } from './Tables.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, getRowsFromBytes, AssemblyOsRow, AssemblyRefRow, AssemblyRefProcessorRow, AssemblyRefOsRow } from './Tables.js';
 import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
 import * as Columns from './TableColumns.js'
@@ -196,6 +196,7 @@ export class CliParser {
         const assemblyOs = readTable(MetadataTables.AssemblyOS, () => new AssemblyOsRow(), Columns.AssemblyOs);
         const assemblyRef = readTable(MetadataTables.AssemblyRef, () => new AssemblyRefRow(), Columns.AssemblyRef);
         const assemblyRefProcessor = readTable(MetadataTables.AssemblyRefProcessor, () => new AssemblyRefProcessorRow(), Columns.AssemblyRefProcessor);
+        const assemblyRefOs = readTable(MetadataTables.AssemblyRefOS, () => new AssemblyRefOsRow(), Columns.AssemblyRefOs);
 
         return {
             moduleTable: module,
@@ -228,6 +229,7 @@ export class CliParser {
             assemblyOsTable: assemblyOs,
             assemblyRefTable: assemblyRef,
             assemblyRefProcessorTable: assemblyRefProcessor,
+            assemblyRefOsTable: assemblyRefOs,
         }
     }
 

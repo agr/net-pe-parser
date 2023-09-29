@@ -12,8 +12,17 @@ import { StringHeap } from "./StringHeap.js";
 import { CliMetadataTableStreamHeader, MetadataTables } from "./Structures.js";
 import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow } from "./Tables.js";
 
-export function getModuleTableColumns(
+export interface GetColumns<TRow> {
+    (tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+        stringHeap: Readonly<StringHeap>,
+        blobHeap: Readonly<BinaryHeap>,
+        guidHeap: Readonly<GuidHeap>): Column<TRow>[];
+}
+
+export function Module(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
     stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
 {
     return [
@@ -25,9 +34,11 @@ export function getModuleTableColumns(
     ];
 }
 
-export function getTypeRefTableColumn(
+export function TypeRef(
     tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
-    stringHeap: Readonly<StringHeap>): Column<TypeRefTableRow>[]
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<TypeRefTableRow>[]
 {
     return [
         new CodedIndexColumn(tableStreamHeader, CodedIndex.ResolutionScope, (row, index) => row.resolutionScopeCI = index),
@@ -36,9 +47,11 @@ export function getTypeRefTableColumn(
     ];
 }
 
-export function getTypeDefTableColumn(
+export function TypeDef(
     tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
-    stringHeap: Readonly<StringHeap>): Column<TypeDefTableRow>[]
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<TypeDefTableRow>[]
 {
     return [
         new UintColumn(4, (row, value) => row.flags = value),
@@ -50,9 +63,11 @@ export function getTypeDefTableColumn(
     ];
 }
 
-export function getFieldTableColumn(
+export function Field(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
     stringHeap: Readonly<StringHeap>,
-    blobHeap: Readonly<BinaryHeap>): Column<FieldTableRow>[]
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<FieldTableRow>[]
 {
     return [
         new UintColumn(2, (row, value) => row.flags = value),
@@ -61,10 +76,11 @@ export function getFieldTableColumn(
     ];
 }
 
-export function getMethodDefTableColumn(
+export function MethodDef(
     tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
     stringHeap: Readonly<StringHeap>,
-    blobHeap: Readonly<BinaryHeap>): Column<MethodDefRow>[]
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<MethodDefRow>[]
 {
     return [
         new UintColumn(4, (row, value) => row.rva = value),
@@ -76,8 +92,11 @@ export function getMethodDefTableColumn(
     ];
 }
 
-export function getParamTableColumn(
-    stringHeap: Readonly<StringHeap>): Column<ParamRow>[]
+export function Param(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<ParamRow>[]
 {
     return [
         new UintColumn(2, (row, value) => row.flags = value),
@@ -86,8 +105,11 @@ export function getParamTableColumn(
     ];
 }
 
-export function getInterfaceImplColumn(
-    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<InterfaceImplRow>[]
+export function Interface(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<InterfaceImplRow>[]
 {
     return [
         new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.classIndex = index),
@@ -95,10 +117,11 @@ export function getInterfaceImplColumn(
     ];
 }
 
-export function getMemberRefColumn(
+export function MemberRef(
     tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
     stringHeap: Readonly<StringHeap>,
-    blobHeap: Readonly<BinaryHeap>): Column<MemberRefRow>[]
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<MemberRefRow>[]
 {
     return [
         new CodedIndexColumn(tableStreamHeader, CodedIndex.MemberRefParent, (row, index) => row.classCI = index),
@@ -107,9 +130,11 @@ export function getMemberRefColumn(
     ];    
 }
 
-export function getConstantColumn(
+export function Constant(
     tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
-    blobHeap: Readonly<BinaryHeap>): Column<ConstantRow>[]
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<ConstantRow>[]
 {
     return [
         new UintColumn(2, (row, value) => row.type = value),
@@ -118,9 +143,11 @@ export function getConstantColumn(
     ];
 }
 
-export function getCustomAttributeColumn(
+export function CustomAttribute(
     tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
-    blobHeap: Readonly<BinaryHeap>): Column<CustomAttributeRow>[]
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<CustomAttributeRow>[]
 {
     return [
         new CodedIndexColumn(tableStreamHeader, CodedIndex.HasCustomAttribute, (row, index) => row.parentCI = index),
@@ -129,9 +156,11 @@ export function getCustomAttributeColumn(
     ];
 }
 
-export function getFieldMarshalColumn(
+export function FieldMarshal(
     tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
-    blobHeap: Readonly<BinaryHeap>): Column<FieldMarshalRow>[]
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<FieldMarshalRow>[]
 {
     return [
         new CodedIndexColumn(tableStreamHeader, CodedIndex.HasFieldMarshall, (row, index) => row.parentCI = index),
@@ -139,9 +168,11 @@ export function getFieldMarshalColumn(
     ];
 }
 
-export function getDeclSecurityColumn(
+export function DeclSecurity(
     tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
-    blobHeap: Readonly<BinaryHeap>): Column<DeclSecurityRow>[]
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<DeclSecurityRow>[]
 {
     return [
         new UintColumn(2, (row, value) => row.action = value),
@@ -150,8 +181,11 @@ export function getDeclSecurityColumn(
     ];
 }
 
-export function getClassLayoutColumn(
-    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<ClassLayoutRow>[]
+export function ClassLayout(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<ClassLayoutRow>[]
 {
     return [
         new UintColumn(2, (row, value) => row.packingSize = value),
@@ -160,8 +194,11 @@ export function getClassLayoutColumn(
     ];
 }
 
-export function getFieldLayoutColumn(
-    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<FieldLayoutRow>[]
+export function FieldLayout(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<FieldLayoutRow>[]
 {
     return [
         new UintColumn(4, (row, value) => row.offset = value),
@@ -169,16 +206,22 @@ export function getFieldLayoutColumn(
     ];
 }
 
-export function getStandAloneSigColumn(
-    blobHeap: Readonly<BinaryHeap>): Column<StandAloneSigRow>[]
+export function StandAloneSig(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<StandAloneSigRow>[]
 {
     return [
         new BlobReferenceColumn(blobHeap, (row, index) => row.signatureIndex = index, (row, data) => row.signatureData = data),
     ];
 }
 
-export function getEventMapColumn(
-    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<EventMapRow>[]
+export function EventMap(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<EventMapRow>[]
 {
     return [
         new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.parentIndex = index),
@@ -186,9 +229,11 @@ export function getEventMapColumn(
     ];
 }
 
-export function getEventColumn(
+export function Event(
     tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
-    stringHeap: Readonly<StringHeap>): Column<EventRow>[]
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<EventRow>[]
 {
     return [
         new UintColumn(2, (row, value) => row.eventFlags = value),
@@ -197,8 +242,11 @@ export function getEventColumn(
     ];
 }
 
-export function getPropertyMapColumn(
-    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<PropertyMapRow>[]
+export function PropertyMap(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<PropertyMapRow>[]
 {
     return [
         new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.parentIndex = index),
@@ -206,9 +254,11 @@ export function getPropertyMapColumn(
     ];
 }
 
-export function getPropertyColumn(
+export function Property(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
     stringHeap: Readonly<StringHeap>,
-    blobHeap: Readonly<BinaryHeap>): Column<PropertyRow>[]
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<PropertyRow>[]
 {
     return [
         new UintColumn(2, (row, value) => row.flags = value),
@@ -217,8 +267,11 @@ export function getPropertyColumn(
     ];
 }
 
-export function getMethodSemanticsColumn(
-    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<MethodSemanticsRow>[]
+export function MethodSemantics(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<MethodSemanticsRow>[]
 {
     return [
         new UintColumn(2, (row, value) => row.semantics = value),
@@ -227,8 +280,11 @@ export function getMethodSemanticsColumn(
     ];
 }
 
-export function getMethodImplColumn(
-    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<MethodImplRow>[]
+export function MethodImpl(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<MethodImplRow>[]
 {
     return [
         new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.classIndex = index),
@@ -237,25 +293,33 @@ export function getMethodImplColumn(
     ];
 }
 
-export function getModuleRefColumn(
-    stringHeap: Readonly<StringHeap>): Column<ModuleRefRow>[]
+export function ModuleRef(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<ModuleRefRow>[]
 {
     return [
         new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
     ];
 }
 
-export function getTypeSpecColumn(
-    blobHeap: Readonly<BinaryHeap>): Column<TypeSpecRow>[]
+export function TypeSpec(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<TypeSpecRow>[]
 {
     return [
         new BlobReferenceColumn(blobHeap, (row, index) => row.signatureIndex = index, (row, data) => row.signatureData = data),
     ];
 }
 
-export function getImplMapColumn(
+export function ImplMap(
     tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
-    stringHeap: Readonly<StringHeap>): Column<ImplMapRow>[]
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<ImplMapRow>[]
 {
     return [
         new UintColumn(2, (row, value) => row.mappingFlags = value),
@@ -265,8 +329,11 @@ export function getImplMapColumn(
     ];
 }
 
-export function getFieldRvaColumn(
-    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>): Column<FieldRvaRow>[]
+export function FieldRva(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<FieldRvaRow>[]
 {
     return[
         new UintColumn(4, (row, value) => row.rva = value),
@@ -274,9 +341,11 @@ export function getFieldRvaColumn(
     ];
 }
 
-export function getAssemblyColumn(
+export function Assembly(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
     stringHeap: Readonly<StringHeap>,
-    blobHeap: Readonly<BinaryHeap>): Column<AssemblyRow>[]
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<AssemblyRow>[]
 {
     return [
         new UintColumn(4, (row, value) => row.hashAlgId = value),
@@ -291,7 +360,11 @@ export function getAssemblyColumn(
     ];
 }
 
-export function getAssemblyProcessorColumn(): Column<AssemblyProcessorRow>[]
+export function AssemblyProcessor(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<AssemblyProcessorRow>[]
 {
     return [
         new UintColumn(4, (row, value) => row.processor = value),

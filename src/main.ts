@@ -4,9 +4,8 @@ import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableSt
 import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, getRowsFromBytes } from './Tables.js';
 import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
-import * as Table from './TableColumns.js'
+import * as Columns from './TableColumns.js'
 import { BinaryHeap } from './BinaryHeap.js';
-import { Column } from './Columns/Column.js';
 
 export class CliParser {
     public static getCliHeader(exe: PE.NtExecutable): Readonly<CliHeader> | null {
@@ -159,40 +158,41 @@ export class CliParser {
         function readTable<TRow>(
             table: MetadataTables,
             createRow: () => TRow,
-            columns: Column<TRow>[]): TRow[] | null
+            getColumns: Columns.GetColumns<TRow>): TRow[] | null
         {
+            const columns = getColumns(header, stringHeap, blobHeap, guidHeap);
             const result = getRowsFromBytes(table, metadataStream!, offset, createRow, columns, header);
             offset += result.bytesRead || 0;
             return result.rows;
         }
 
-        const module = readTable(MetadataTables.Module, () => new ModuleTableRow(), Table.getModuleTableColumns(stringHeap, guidHeap));
-        const typeRef = readTable(MetadataTables.TypeRef, () => new TypeRefTableRow(), Table.getTypeRefTableColumn(header, stringHeap));
-        const typeDef = readTable(MetadataTables.TypeDef, () => new TypeDefTableRow(), Table.getTypeDefTableColumn(header, stringHeap));
-        const field = readTable(MetadataTables.Field, () => new FieldTableRow(), Table.getFieldTableColumn(stringHeap, blobHeap));
-        const methodDef = readTable(MetadataTables.MethodDef, () => new MethodDefRow(), Table.getMethodDefTableColumn(header, stringHeap, blobHeap));
-        const param = readTable(MetadataTables.Param, () => new ParamRow(), Table.getParamTableColumn(stringHeap));
-        const interfaceImpl = readTable(MetadataTables.InterfaceImpl, () => new InterfaceImplRow(), Table.getInterfaceImplColumn(header));
-        const memberRef = readTable(MetadataTables.MemberRef, () => new MemberRefRow, Table.getMemberRefColumn(header, stringHeap, blobHeap));
-        const constant = readTable(MetadataTables.Constant, () => new ConstantRow(), Table.getConstantColumn(header, blobHeap));
-        const customAttribute = readTable(MetadataTables.CustomAttribute, () => new CustomAttributeRow(), Table.getCustomAttributeColumn(header, blobHeap));
-        const fieldMarshal = readTable(MetadataTables.FieldMarshal, () => new FieldMarshalRow(), Table.getFieldMarshalColumn(header, blobHeap));
-        const declSecurity = readTable(MetadataTables.DeclSecurity, () => new DeclSecurityRow, Table.getDeclSecurityColumn(header, blobHeap));
-        const classLayout = readTable(MetadataTables.ClassLayout, () => new ClassLayoutRow(), Table.getClassLayoutColumn(header));
-        const fieldLayout = readTable(MetadataTables.FieldLayout, () => new FieldLayoutRow(), Table.getFieldLayoutColumn(header));
-        const standAloneSig = readTable(MetadataTables.StandAloneSig, () => new StandAloneSigRow(), Table.getStandAloneSigColumn(blobHeap));
-        const eventMap = readTable(MetadataTables.EventMap, () => new EventMapRow(), Table.getEventMapColumn(header));
-        const event = readTable(MetadataTables.Event, () => new EventRow(), Table.getEventColumn(header, stringHeap));
-        const propertyMap = readTable(MetadataTables.PropertyMap, () => new PropertyMapRow(), Table.getPropertyMapColumn(header));
-        const property = readTable(MetadataTables.Property, () => new PropertyRow(), Table.getPropertyColumn(stringHeap, blobHeap));
-        const methodSemantics = readTable(MetadataTables.MethodSemantics, () => new MethodSemanticsRow(), Table.getMethodSemanticsColumn(header));
-        const methodImpl = readTable(MetadataTables.MethodImpl, () => new MethodImplRow(), Table.getMethodImplColumn(header));
-        const moduleRef = readTable(MetadataTables.ModuleRef, () => new ModuleRefRow(), Table.getModuleRefColumn(stringHeap));
-        const typeSpec = readTable(MetadataTables.TypeSpec, () => new TypeSpecRow, Table.getTypeSpecColumn(blobHeap));
-        const implMap = readTable(MetadataTables.ImplMap, () => new ImplMapRow(), Table.getImplMapColumn(header, stringHeap));
-        const fieldRva = readTable(MetadataTables.FieldRVA, () => new FieldRvaRow(), Table.getFieldRvaColumn(header));
-        const assembly = readTable(MetadataTables.Assembly, () => new AssemblyRow(), Table.getAssemblyColumn(stringHeap, blobHeap));
-        const assemblyProcessor = readTable(MetadataTables.AssemblyProcessor, () => new AssemblyProcessorRow, Table.getAssemblyProcessorColumn())
+        const module = readTable(MetadataTables.Module, () => new ModuleTableRow(), Columns.Module);
+        const typeRef = readTable(MetadataTables.TypeRef, () => new TypeRefTableRow(), Columns.TypeRef);
+        const typeDef = readTable(MetadataTables.TypeDef, () => new TypeDefTableRow(), Columns.TypeDef);
+        const field = readTable(MetadataTables.Field, () => new FieldTableRow(), Columns.Field);
+        const methodDef = readTable(MetadataTables.MethodDef, () => new MethodDefRow(), Columns.MethodDef);
+        const param = readTable(MetadataTables.Param, () => new ParamRow(), Columns.Param);
+        const interfaceImpl = readTable(MetadataTables.InterfaceImpl, () => new InterfaceImplRow(), Columns.Interface);
+        const memberRef = readTable(MetadataTables.MemberRef, () => new MemberRefRow, Columns.MemberRef);
+        const constant = readTable(MetadataTables.Constant, () => new ConstantRow(), Columns.Constant);
+        const customAttribute = readTable(MetadataTables.CustomAttribute, () => new CustomAttributeRow(), Columns.CustomAttribute);
+        const fieldMarshal = readTable(MetadataTables.FieldMarshal, () => new FieldMarshalRow(), Columns.FieldMarshal);
+        const declSecurity = readTable(MetadataTables.DeclSecurity, () => new DeclSecurityRow, Columns.DeclSecurity);
+        const classLayout = readTable(MetadataTables.ClassLayout, () => new ClassLayoutRow(), Columns.ClassLayout);
+        const fieldLayout = readTable(MetadataTables.FieldLayout, () => new FieldLayoutRow(), Columns.FieldLayout);
+        const standAloneSig = readTable(MetadataTables.StandAloneSig, () => new StandAloneSigRow(), Columns.StandAloneSig);
+        const eventMap = readTable(MetadataTables.EventMap, () => new EventMapRow(), Columns.EventMap);
+        const event = readTable(MetadataTables.Event, () => new EventRow(), Columns.Event);
+        const propertyMap = readTable(MetadataTables.PropertyMap, () => new PropertyMapRow(), Columns.PropertyMap);
+        const property = readTable(MetadataTables.Property, () => new PropertyRow(), Columns.Property);
+        const methodSemantics = readTable(MetadataTables.MethodSemantics, () => new MethodSemanticsRow(), Columns.MethodSemantics);
+        const methodImpl = readTable(MetadataTables.MethodImpl, () => new MethodImplRow(), Columns.MethodImpl);
+        const moduleRef = readTable(MetadataTables.ModuleRef, () => new ModuleRefRow(), Columns.ModuleRef);
+        const typeSpec = readTable(MetadataTables.TypeSpec, () => new TypeSpecRow, Columns.TypeSpec);
+        const implMap = readTable(MetadataTables.ImplMap, () => new ImplMapRow(), Columns.ImplMap);
+        const fieldRva = readTable(MetadataTables.FieldRVA, () => new FieldRvaRow(), Columns.FieldRva);
+        const assembly = readTable(MetadataTables.Assembly, () => new AssemblyRow(), Columns.Assembly);
+        const assemblyProcessor = readTable(MetadataTables.AssemblyProcessor, () => new AssemblyProcessorRow, Columns.AssemblyProcessor)
 
         return {
             moduleTable: module,

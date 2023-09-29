@@ -173,5 +173,8 @@ describe('DLL file parsing tests', () => {
         if (!tables.assemblyTable) { throw ''; }
         expect(tables.assemblyTable.length).toBe(1);
         expect(tables.assemblyTable[0].name).toBe('dotnet-test');
+        expect(tables.assemblyRefTable).not.toBeNull();
+        if (!tables.assemblyRefTable) { throw ''; }
+        expect(tables.assemblyRefTable.map(r => r.name)).toContain("System.Runtime");
     });
 });

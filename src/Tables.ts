@@ -238,3 +238,19 @@ export class AssemblyOsRow {
     osMajorVersion: number = 0;
     osMinorVersion: number = 0;
 }
+
+export class AssemblyRefRow {
+    majorVersion: number = 0;
+    minorVersion: number = 0;
+    buildNumber: number = 0;
+    revisionNumber: number = 0;
+    flags: number = 0;
+    publicKeyOrTokenIndex: number = 0;
+    publicKeyOrTokenData: DataView = NoData;
+    nameIndex: number = 0;
+    name: string = "";
+    cultureIndex: number = 0;
+    culture: string = "";
+    hashValueIndex: number = 0;
+    hashValueData: DataView = NoData;
+}

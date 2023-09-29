@@ -10,7 +10,7 @@ import { UintColumn } from "./Columns/UintColumn.js";
 import { GuidHeap } from "./GuidHeap.js";
 import { StringHeap } from "./StringHeap.js";
 import { CliMetadataTableStreamHeader, MetadataTables } from "./Structures.js";
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, AssemblyOsRow } from "./Tables.js";
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, AssemblyOsRow, AssemblyRefRow } from "./Tables.js";
 
 export interface GetColumns<TRow> {
     (tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
@@ -381,5 +381,24 @@ export function AssemblyOs(
         new UintColumn(4, (row, value) => row.osPlarformId = value),
         new UintColumn(4, (row, value) => row.osMajorVersion = value),
         new UintColumn(4, (row, value) => row.osMinorVersion = value),
+    ];
+}
+
+export function AssemblyRef(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<AssemblyRefRow>[]
+{
+    return [
+        new UintColumn(2, (row, value) => row.majorVersion = value),
+        new UintColumn(2, (row, value) => row.minorVersion = value),
+        new UintColumn(2, (row, value) => row.buildNumber = value),
+        new UintColumn(2, (row, value) => row.revisionNumber = value),
+        new UintColumn(4, (row, value) => row.flags = value),
+        new BlobReferenceColumn(blobHeap, (row, index) => row.publicKeyOrTokenIndex = index, (row, data) => row.publicKeyOrTokenData = data),
+        new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
+        new StringReferenceColumn(stringHeap, (row, index) => row.cultureIndex = index, (row, value) => row.culture = value),
+        new BlobReferenceColumn(blobHeap, (row, index) => row.hashValueIndex = index, (row, data) => row.hashValueData = data),
     ];
 }

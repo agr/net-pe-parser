@@ -159,67 +159,67 @@ export class CliParser {
         function readTable<TRow>(
             table: MetadataTables,
             createRow: () => TRow,
-            columns: Column<TRow>[]): Table.Table<TRow>
+            columns: Column<TRow>[]): TRow[] | null
         {
             const result = Table.getRowsFromBytes(table, metadataStream!, offset, createRow, columns, header);
             offset += result.bytesRead || 0;
-            return result;
+            return result.rows;
         }
 
-        const moduleTableReadResult = readTable(MetadataTables.Module, () => new ModuleTableRow(), Table.getModuleTableColumns(stringHeap, guidHeap));
-        const typeRefTableReadResult = readTable(MetadataTables.TypeRef, () => new TypeRefTableRow(), Table.getTypeRefTableColumn(header, stringHeap));
-        const typeDefTableReadResult = readTable(MetadataTables.TypeDef, () => new TypeDefTableRow(), Table.getTypeDefTableColumn(header, stringHeap));
-        const fieldTableReadResult = readTable(MetadataTables.Field, () => new FieldTableRow(), Table.getFieldTableColumn(stringHeap, blobHeap));
-        const methodDefReadResult = readTable(MetadataTables.MethodDef, () => new MethodDefRow(), Table.getMethodDefTableColumn(header, stringHeap, blobHeap));
-        const paramReadResult = readTable(MetadataTables.Param, () => new ParamRow(), Table.getParamTableColumn(stringHeap));
-        const interfaceImplReadResult = readTable(MetadataTables.InterfaceImpl, () => new InterfaceImplRow(), Table.getInterfaceImplColumn(header));
-        const memberRefReadResult = readTable(MetadataTables.MemberRef, () => new MemberRefRow, Table.getMemberRefColumn(header, stringHeap, blobHeap));
-        const constantReadResult = readTable(MetadataTables.Constant, () => new ConstantRow(), Table.getConstantColumn(header, blobHeap));
-        const customAttributeReadResult = readTable(MetadataTables.CustomAttribute, () => new CustomAttributeRow(), Table.getCustomAttributeColumn(header, blobHeap));
-        const fieldMarshalReadResult = readTable(MetadataTables.FieldMarshal, () => new FieldMarshalRow(), Table.getFieldMarshalColumn(header, blobHeap));
-        const declSecurityReadResult = readTable(MetadataTables.DeclSecurity, () => new DeclSecurityRow, Table.getDeclSecurityColumn(header, blobHeap));
-        const classLayoutReadResult = readTable(MetadataTables.ClassLayout, () => new ClassLayoutRow(), Table.getClassLayoutColumn(header));
-        const fieldLayoutReadResult = readTable(MetadataTables.FieldLayout, () => new FieldLayoutRow(), Table.getFieldLayoutColumn(header));
-        const standAloneSigReadResult = readTable(MetadataTables.StandAloneSig, () => new StandAloneSigRow(), Table.getStandAloneSigColumn(blobHeap));
-        const eventMapReadResult = readTable(MetadataTables.EventMap, () => new EventMapRow(), Table.getEventMapColumn(header));
-        const eventReadResult = readTable(MetadataTables.Event, () => new EventRow(), Table.getEventColumn(header, stringHeap));
-        const propertyMapReadResult = readTable(MetadataTables.PropertyMap, () => new PropertyMapRow(), Table.getPropertyMapColumn(header));
-        const propertyReadResult = readTable(MetadataTables.Property, () => new PropertyRow(), Table.getPropertyColumn(stringHeap, blobHeap));
-        const methodSemanticsReadResult = readTable(MetadataTables.MethodSemantics, () => new MethodSemanticsRow(), Table.getMethodSemanticsColumn(header));
-        const methodImplReadResult = readTable(MetadataTables.MethodImpl, () => new MethodImplRow(), Table.getMethodImplColumn(header));
-        const moduleRefReadResult = readTable(MetadataTables.ModuleRef, () => new ModuleRefRow(), Table.getModuleRefColumn(stringHeap));
-        const typeSpecReadResult = readTable(MetadataTables.TypeSpec, () => new TypeSpecRow, Table.getTypeSpecColumn(blobHeap));
-        const implMapReadResult = readTable(MetadataTables.ImplMap, () => new ImplMapRow(), Table.getImplMapColumn(header, stringHeap));
-        const fieldRvaReadResult = readTable(MetadataTables.FieldRVA, () => new FieldRvaRow(), Table.getFieldRvaColumn(header));
-        const assemblyReadResult = readTable(MetadataTables.Assembly, () => new AssemblyRow(), Table.getAssemblyColumn(stringHeap, blobHeap));
+        const module = readTable(MetadataTables.Module, () => new ModuleTableRow(), Table.getModuleTableColumns(stringHeap, guidHeap));
+        const typeRef = readTable(MetadataTables.TypeRef, () => new TypeRefTableRow(), Table.getTypeRefTableColumn(header, stringHeap));
+        const typeDef = readTable(MetadataTables.TypeDef, () => new TypeDefTableRow(), Table.getTypeDefTableColumn(header, stringHeap));
+        const field = readTable(MetadataTables.Field, () => new FieldTableRow(), Table.getFieldTableColumn(stringHeap, blobHeap));
+        const methodDef = readTable(MetadataTables.MethodDef, () => new MethodDefRow(), Table.getMethodDefTableColumn(header, stringHeap, blobHeap));
+        const param = readTable(MetadataTables.Param, () => new ParamRow(), Table.getParamTableColumn(stringHeap));
+        const interfaceImpl = readTable(MetadataTables.InterfaceImpl, () => new InterfaceImplRow(), Table.getInterfaceImplColumn(header));
+        const memberRef = readTable(MetadataTables.MemberRef, () => new MemberRefRow, Table.getMemberRefColumn(header, stringHeap, blobHeap));
+        const constant = readTable(MetadataTables.Constant, () => new ConstantRow(), Table.getConstantColumn(header, blobHeap));
+        const customAttribute = readTable(MetadataTables.CustomAttribute, () => new CustomAttributeRow(), Table.getCustomAttributeColumn(header, blobHeap));
+        const fieldMarshal = readTable(MetadataTables.FieldMarshal, () => new FieldMarshalRow(), Table.getFieldMarshalColumn(header, blobHeap));
+        const declSecurity = readTable(MetadataTables.DeclSecurity, () => new DeclSecurityRow, Table.getDeclSecurityColumn(header, blobHeap));
+        const classLayout = readTable(MetadataTables.ClassLayout, () => new ClassLayoutRow(), Table.getClassLayoutColumn(header));
+        const fieldLayout = readTable(MetadataTables.FieldLayout, () => new FieldLayoutRow(), Table.getFieldLayoutColumn(header));
+        const standAloneSig = readTable(MetadataTables.StandAloneSig, () => new StandAloneSigRow(), Table.getStandAloneSigColumn(blobHeap));
+        const eventMap = readTable(MetadataTables.EventMap, () => new EventMapRow(), Table.getEventMapColumn(header));
+        const event = readTable(MetadataTables.Event, () => new EventRow(), Table.getEventColumn(header, stringHeap));
+        const propertyMap = readTable(MetadataTables.PropertyMap, () => new PropertyMapRow(), Table.getPropertyMapColumn(header));
+        const property = readTable(MetadataTables.Property, () => new PropertyRow(), Table.getPropertyColumn(stringHeap, blobHeap));
+        const methodSemantics = readTable(MetadataTables.MethodSemantics, () => new MethodSemanticsRow(), Table.getMethodSemanticsColumn(header));
+        const methodImpl = readTable(MetadataTables.MethodImpl, () => new MethodImplRow(), Table.getMethodImplColumn(header));
+        const moduleRef = readTable(MetadataTables.ModuleRef, () => new ModuleRefRow(), Table.getModuleRefColumn(stringHeap));
+        const typeSpec = readTable(MetadataTables.TypeSpec, () => new TypeSpecRow, Table.getTypeSpecColumn(blobHeap));
+        const implMap = readTable(MetadataTables.ImplMap, () => new ImplMapRow(), Table.getImplMapColumn(header, stringHeap));
+        const fieldRva = readTable(MetadataTables.FieldRVA, () => new FieldRvaRow(), Table.getFieldRvaColumn(header));
+        const assembly = readTable(MetadataTables.Assembly, () => new AssemblyRow(), Table.getAssemblyColumn(stringHeap, blobHeap));
 
         return {
-            moduleTable: moduleTableReadResult ? moduleTableReadResult.rows : null,
-            typeRefTable: typeRefTableReadResult ? typeRefTableReadResult.rows : null,
-            typeDefTable: typeDefTableReadResult ? typeDefTableReadResult.rows : null,
-            fieldTable: fieldTableReadResult ? fieldTableReadResult.rows : null,
-            methodDefTable: methodDefReadResult ? methodDefReadResult.rows : null,
-            paramTable: paramReadResult ? paramReadResult.rows : null,
-            interfaceImplTable: interfaceImplReadResult ? interfaceImplReadResult.rows : null,
-            memberRefTable: memberRefReadResult ? memberRefReadResult.rows : null,
-            constantTable: constantReadResult ? constantReadResult.rows : null,
-            customAttributeTable: customAttributeReadResult ? customAttributeReadResult.rows : null,
-            fieldMarshalTable: fieldMarshalReadResult ? fieldMarshalReadResult.rows : null,
-            declSecurityTable: declSecurityReadResult ? declSecurityReadResult.rows : null,
-            classLayoutTable: classLayoutReadResult ? classLayoutReadResult.rows : null,
-            fieldLayoutTable: fieldLayoutReadResult ? fieldLayoutReadResult.rows : null,
-            standAloneSigTable: standAloneSigReadResult ? standAloneSigReadResult.rows : null,
-            eventMapTable: eventMapReadResult ? eventMapReadResult.rows : null,
-            eventTable: eventReadResult ? eventReadResult.rows : null,
-            propertyMapTable: propertyMapReadResult ? propertyMapReadResult.rows : null,
-            propertyTable: propertyReadResult ? propertyReadResult.rows : null,
-            methodSemanticsTable: methodSemanticsReadResult ? methodSemanticsReadResult.rows : null,
-            methodImplTable: methodImplReadResult ? methodImplReadResult.rows : null,
-            moduleRefTable: moduleRefReadResult ? moduleRefReadResult.rows : null,
-            typeSpecTable: typeSpecReadResult ? typeSpecReadResult.rows : null,
-            implMapTable: implMapReadResult ? implMapReadResult.rows : null,
-            fieldRvaTable: fieldRvaReadResult ? fieldRvaReadResult.rows : null,
-            assemblyTable: assemblyReadResult ? assemblyReadResult.rows : null,
+            moduleTable: module,
+            typeRefTable: typeRef,
+            typeDefTable: typeDef,
+            fieldTable: field,
+            methodDefTable: methodDef,
+            paramTable: param,
+            interfaceImplTable: interfaceImpl,
+            memberRefTable: memberRef,
+            constantTable: constant,
+            customAttributeTable: customAttribute,
+            fieldMarshalTable: fieldMarshal,
+            declSecurityTable: declSecurity,
+            classLayoutTable: classLayout,
+            fieldLayoutTable: fieldLayout,
+            standAloneSigTable: standAloneSig,
+            eventMapTable: eventMap,
+            eventTable: event,
+            propertyMapTable: propertyMap,
+            propertyTable: property,
+            methodSemanticsTable: methodSemantics,
+            methodImplTable: methodImpl,
+            moduleRefTable: moduleRef,
+            typeSpecTable: typeSpec,
+            implMapTable: implMap,
+            fieldRvaTable: fieldRva,
+            assemblyTable: assembly,
         }
     }
 

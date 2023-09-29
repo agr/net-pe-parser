@@ -1,7 +1,7 @@
 import * as PE from 'pe-library';
 import { getBoolArrayFromBitmask, getNullTerminatedUtf8String, getUtf8String, roundUpToNearest } from './Helpers.js';
 import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables, HeapSizes, MetadataTables } from './Structures.js';
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, getRowsFromBytes } from './Tables.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, getRowsFromBytes, AssemblyOsRow } from './Tables.js';
 import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
 import * as Columns from './TableColumns.js'
@@ -192,7 +192,8 @@ export class CliParser {
         const implMap = readTable(MetadataTables.ImplMap, () => new ImplMapRow(), Columns.ImplMap);
         const fieldRva = readTable(MetadataTables.FieldRVA, () => new FieldRvaRow(), Columns.FieldRva);
         const assembly = readTable(MetadataTables.Assembly, () => new AssemblyRow(), Columns.Assembly);
-        const assemblyProcessor = readTable(MetadataTables.AssemblyProcessor, () => new AssemblyProcessorRow, Columns.AssemblyProcessor)
+        const assemblyProcessor = readTable(MetadataTables.AssemblyProcessor, () => new AssemblyProcessorRow, Columns.AssemblyProcessor);
+        const assemblyOs = readTable(MetadataTables.AssemblyOS, () => new AssemblyOsRow(), Columns.AssemblyOs);
 
         return {
             moduleTable: module,
@@ -222,6 +223,7 @@ export class CliParser {
             fieldRvaTable: fieldRva,
             assemblyTable: assembly,
             assemblyProcessorTable: assemblyProcessor,
+            assemblyOsTable: assemblyOs,
         }
     }
 

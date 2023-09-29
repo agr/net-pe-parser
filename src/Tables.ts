@@ -232,3 +232,9 @@ export class AssemblyRow {
 export class AssemblyProcessorRow {
     processor: number = 0;
 }
+
+export class AssemblyOsRow {
+    osPlarformId: number = 0;
+    osMajorVersion: number = 0;
+    osMinorVersion: number = 0;
+}

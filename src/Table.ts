@@ -239,6 +239,10 @@ export class AssemblyRow {
     culture: string = "";
 }
 
+export class AssemblyProcessorRow {
+    processor: number = 0;
+}
+
 export function getModuleTableColumns(
     stringHeap: Readonly<StringHeap>,
     guidHeap: Readonly<GuidHeap>): Column<ModuleTableRow>[]
@@ -515,5 +519,12 @@ export function getAssemblyColumn(
         new BlobReferenceColumn(blobHeap, (row, index) => row.publicKeyIndex = index, (row, data) => row.publicKeyData = data),
         new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
         new StringReferenceColumn(stringHeap, (row, index) => row.cultureIndex = index, (row, value) => row.culture = value),
+    ];
+}
+
+export function getAssemblyProcessorColumn(): Column<AssemblyProcessorRow>[]
+{
+    return [
+        new UintColumn(4, (row, value) => row.processor = value),
     ];
 }

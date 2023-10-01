@@ -266,3 +266,11 @@ export class AssemblyRefOsRow {
     osMinorVersion: number = 0;
     assemblyRefIndex: number = 0;
 }
+
+export class FileRow {
+    flags: number = 0;
+    nameIndex: number = 0;
+    name: string = "";
+    hashValueIndex: number = 0;
+    hashValue: DataView = NoData;
+}

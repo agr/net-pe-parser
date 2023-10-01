@@ -176,5 +176,10 @@ describe('DLL file parsing tests', () => {
         expect(tables.assemblyRefTable).not.toBeNull();
         if (!tables.assemblyRefTable) { throw ''; }
         expect(tables.assemblyRefTable.map(r => r.name)).toContain("System.Runtime");
+        expect(tables.nestedClassTable).not.toBeNull();
+        if (!tables.nestedClassTable) { throw ''; }
+        expect(tables.nestedClassTable.length).toBeGreaterThan(0);
+        expect(tables.nestedClassTable.map(r => tables.typeDefTable![r.nestedClassIndex - 1].typeName)).toContain("NestedClass");
+        expect(tables.nestedClassTable.map(r => tables.typeDefTable![r.enclosingClassIndex - 1].typeName)).toContain("Class2");
     });
 });

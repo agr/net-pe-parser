@@ -292,3 +292,8 @@ export class ManifestResourceRow {
     name: string = "";
     implementationCI: number = 0;
 }
+
+export class NestedClassRow {
+    nestedClassIndex: number = 0;
+    enclosingClassIndex: number = 0;
+}

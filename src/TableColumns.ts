@@ -10,7 +10,7 @@ import { UintColumn } from "./Columns/UintColumn.js";
 import { GuidHeap } from "./GuidHeap.js";
 import { StringHeap } from "./StringHeap.js";
 import { CliMetadataTableStreamHeader, MetadataTables } from "./Structures.js";
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, AssemblyOsRow, AssemblyRefRow, AssemblyRefProcessorRow, AssemblyRefOsRow, FileRow } from "./Tables.js";
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, AssemblyOsRow, AssemblyRefRow, AssemblyRefProcessorRow, AssemblyRefOsRow, FileRow, ExportedTypeRow } from "./Tables.js";
 
 export interface GetColumns<TRow> {
     (tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
@@ -439,5 +439,20 @@ export function File(
         new UintColumn(4, (row, value) => row.flags = value),
         new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
         new BlobReferenceColumn(blobHeap, (row, index) => row.hashValueIndex = index, (row, data) => row.hashValue = data),
+    ];
+}
+
+export function ExportedType(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<ExportedTypeRow>[]
+{
+    return [
+        new UintColumn(4, (row, value) => row.flags = value),
+        new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.typeDefIdIndex = index),
+        new StringReferenceColumn(stringHeap, (row, index) => row.typeNameIndex = index, (row, value) => row.typeName = value),
+        new StringReferenceColumn(stringHeap, (row, index) => row.typeNamespaceIndex = index, (row, value) => row.typeNamespace = value),
+        new CodedIndexColumn(tableStreamHeader, CodedIndex.Implementation, (row, index) => row.implementationCI = index),
     ];
 }

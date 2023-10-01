@@ -274,3 +274,13 @@ export class FileRow {
     hashValueIndex: number = 0;
     hashValue: DataView = NoData;
 }
+
+export class ExportedTypeRow {
+    flags: number = 0;
+    typeDefIdIndex: number = 0;
+    typeNameIndex: number = 0;
+    typeName: string = "";
+    typeNamespaceIndex: number = 0;
+    typeNamespace: string = "";
+    implementationCI: number = 0;
+}

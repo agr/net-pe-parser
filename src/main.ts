@@ -1,7 +1,7 @@
 import * as PE from 'pe-library';
 import { getBoolArrayFromBitmask, getNullTerminatedUtf8String, getUtf8String, roundUpToNearest } from './Helpers.js';
 import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables, HeapSizes, MetadataTables } from './Structures.js';
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, getRowsFromBytes, AssemblyOsRow, AssemblyRefRow, AssemblyRefProcessorRow, AssemblyRefOsRow, FileRow } from './Tables.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, getRowsFromBytes, AssemblyOsRow, AssemblyRefRow, AssemblyRefProcessorRow, AssemblyRefOsRow, FileRow, ExportedTypeRow } from './Tables.js';
 import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
 import * as Columns from './TableColumns.js'
@@ -198,6 +198,7 @@ export class CliParser {
         const assemblyRefProcessor = readTable(MetadataTables.AssemblyRefProcessor, () => new AssemblyRefProcessorRow(), Columns.AssemblyRefProcessor);
         const assemblyRefOs = readTable(MetadataTables.AssemblyRefOS, () => new AssemblyRefOsRow(), Columns.AssemblyRefOs);
         const file = readTable(MetadataTables.File, () =>  new FileRow(), Columns.File);
+        const exportedType = readTable(MetadataTables.ExportedType, () => new ExportedTypeRow(), Columns.ExportedType);
 
         return {
             moduleTable: module,
@@ -232,6 +233,7 @@ export class CliParser {
             assemblyRefProcessorTable: assemblyRefProcessor,
             assemblyRefOsTable: assemblyRefOs,
             fileTable: file,
+            exportedTypeTable: exportedType,
         }
     }
 

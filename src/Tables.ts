@@ -284,3 +284,11 @@ export class ExportedTypeRow {
     typeNamespace: string = "";
     implementationCI: number = 0;
 }
+
+export class ManifestResourceRow {
+    offset: number = 0;
+    flags: number = 0;
+    nameIndex: number = 0;
+    name: string = "";
+    implementationCI: number = 0;
+}

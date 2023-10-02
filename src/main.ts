@@ -1,7 +1,7 @@
 import * as PE from 'pe-library';
 import { getBoolArrayFromBitmask, getNullTerminatedUtf8String, getUtf8String, roundUpToNearest } from './Helpers.js';
 import { CliHeader, CliMetadataRoot, CliMetadataStreamHeader, CliMetadataTableStreamHeader, CliMetadataTables, HeapSizes, MetadataTables } from './Structures.js';
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, getRowsFromBytes, AssemblyOsRow, AssemblyRefRow, AssemblyRefProcessorRow, AssemblyRefOsRow, FileRow, ExportedTypeRow, ManifestResourceRow, NestedClassRow, GenericParamRow, MethodSpecRow } from './Tables.js';
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, getRowsFromBytes, AssemblyOsRow, AssemblyRefRow, AssemblyRefProcessorRow, AssemblyRefOsRow, FileRow, ExportedTypeRow, ManifestResourceRow, NestedClassRow, GenericParamRow, MethodSpecRow, GenericParamConstraintRow } from './Tables.js';
 import { StringHeap } from './StringHeap.js';
 import { GuidHeap } from './GuidHeap.js';
 import * as Columns from './TableColumns.js'
@@ -203,6 +203,7 @@ export class CliParser {
         const nestedClass = readTable(MetadataTables.NestedClass, () => new NestedClassRow(), Columns.NestedClass);
         const genericParam = readTable(MetadataTables.GenericParam, () => new GenericParamRow(), Columns.GenericParam);
         const methodSpec = readTable(MetadataTables.MethodSpec, () => new MethodSpecRow(), Columns.MethodSpec);
+        const genericParamConstraint = readTable(MetadataTables.GenericParamConstraint, () => new GenericParamConstraintRow(), Columns.GenericParamConstraint);
 
         return {
             moduleTable: module,
@@ -242,6 +243,7 @@ export class CliParser {
             nestedClassTable: nestedClass,
             genericParamTable: genericParam,
             methodSpecTable: methodSpec,
+            genericParamConstraintTable: genericParamConstraint,
         }
     }
 

@@ -1,6 +1,6 @@
 namespace dotnet_test;
 
-public class Generic<GenericParam1>
+public class Generic<GenericParam1> where GenericParam1: ISomeInterface
 {
     private GenericParam1 value;
 

@@ -11,8 +11,8 @@ public class Class2
     {
         var layout = new ExplicitLayout();
         layout.Prop1 = 21;
-        var g = new Generic<string>("foo");
-        g.Func(new Dictionary<int, string>());
+        var g = new Generic<NestedClass>(new NestedClass());
+        g.Func(new Dictionary<int, NestedClass>());
     }
 
     public class NestedClass : ISomeInterface {

@@ -311,3 +311,8 @@ export class MethodSpecRow {
     instantiationIndex: number = 0;
     instantiation: DataView = NoData;
 }
+
+export class GenericParamConstraintRow {
+    ownerIndex: number = 0;
+    constraintCI: number = 0;
+}

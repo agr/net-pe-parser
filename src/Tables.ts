@@ -305,3 +305,9 @@ export class GenericParamRow {
     nameIndex: number = 0;
     name: string = "";
 }
+
+export class MethodSpecRow {
+    methodCI: number = 0;
+    instantiationIndex: number = 0;
+    instantiation: DataView = NoData;
+}

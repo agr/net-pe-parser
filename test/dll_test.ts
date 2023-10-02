@@ -186,5 +186,8 @@ describe('DLL file parsing tests', () => {
         expect(tables.genericParamTable.length).toBeGreaterThan(0);
         expect(tables.genericParamTable.map(r => r.name)).toContain("GenericParam1");
         expect(tables.genericParamTable.map(r => r.name)).toContain("GenericParam2");
+        expect(tables.methodSpecTable).not.toBeNull();
+        if (!tables.methodSpecTable) { throw '';}
+        expect(tables.methodSpecTable.length).toBeGreaterThan(0);
     });
 });

@@ -11,12 +11,15 @@ public class Class2
     {
         var layout = new ExplicitLayout();
         layout.Prop1 = 21;
+        var g = new Generic<string>("foo");
+        g.Func(new Dictionary<int, string>());
     }
 
     public class NestedClass : ISomeInterface {
         public string SomeProperty => throw new NotImplementedException();
 
-        public object NestedClassMethod(object someObject) {
+        public object NestedClassMethod(object someObject)
+        {
             return new object();
         }
 

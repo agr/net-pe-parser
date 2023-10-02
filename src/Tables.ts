@@ -297,3 +297,11 @@ export class NestedClassRow {
     nestedClassIndex: number = 0;
     enclosingClassIndex: number = 0;
 }
+
+export class GenericParamRow {
+    number: number = 0;
+    flags: number = 0;
+    ownerCI: number = 0;
+    nameIndex: number = 0;
+    name: string = "";
+}

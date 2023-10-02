@@ -10,7 +10,7 @@ import { UintColumn } from "./Columns/UintColumn.js";
 import { GuidHeap } from "./GuidHeap.js";
 import { StringHeap } from "./StringHeap.js";
 import { CliMetadataTableStreamHeader, MetadataTables } from "./Structures.js";
-import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, AssemblyOsRow, AssemblyRefRow, AssemblyRefProcessorRow, AssemblyRefOsRow, FileRow, ExportedTypeRow, ManifestResourceRow, NestedClassRow } from "./Tables.js";
+import { ModuleTableRow, TypeRefTableRow, TypeDefTableRow, FieldTableRow, MethodDefRow, ParamRow, InterfaceImplRow, MemberRefRow, ConstantRow, CustomAttributeRow, FieldMarshalRow, DeclSecurityRow, ClassLayoutRow, FieldLayoutRow, StandAloneSigRow, EventMapRow, EventRow, PropertyMapRow, PropertyRow, MethodSemanticsRow, MethodImplRow, ModuleRefRow, TypeSpecRow, ImplMapRow, FieldRvaRow, AssemblyRow, AssemblyProcessorRow, AssemblyOsRow, AssemblyRefRow, AssemblyRefProcessorRow, AssemblyRefOsRow, FileRow, ExportedTypeRow, ManifestResourceRow, NestedClassRow, GenericParamRow } from "./Tables.js";
 
 export interface GetColumns<TRow> {
     (tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
@@ -480,5 +480,19 @@ export function NestedClass(
     return [
         new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.nestedClassIndex = index),
         new TableIndexColumn(tableStreamHeader, MetadataTables.TypeDef, (row, index) => row.enclosingClassIndex = index),
+    ];
+}
+
+export function GenericParam(
+    tableStreamHeader: Readonly<CliMetadataTableStreamHeader>,
+    stringHeap: Readonly<StringHeap>,
+    blobHeap: Readonly<BinaryHeap>,
+    guidHeap: Readonly<GuidHeap>): Column<GenericParamRow>[]
+{
+    return [
+        new UintColumn(2, (row, value) => row.number = value),
+        new UintColumn(2, (row, value) => row.flags = value),
+        new CodedIndexColumn(tableStreamHeader, CodedIndex.TypeOrMethodDef, (row, index) => row.ownerCI = index),
+        new StringReferenceColumn(stringHeap, (row, index) => row.nameIndex = index, (row, value) => row.name = value),
     ];
 }

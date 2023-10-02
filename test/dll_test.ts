@@ -181,5 +181,10 @@ describe('DLL file parsing tests', () => {
         expect(tables.nestedClassTable.length).toBeGreaterThan(0);
         expect(tables.nestedClassTable.map(r => tables.typeDefTable![r.nestedClassIndex - 1].typeName)).toContain("NestedClass");
         expect(tables.nestedClassTable.map(r => tables.typeDefTable![r.enclosingClassIndex - 1].typeName)).toContain("Class2");
+        expect(tables.genericParamTable).not.toBeNull();
+        if (!tables.genericParamTable) { throw ''; }
+        expect(tables.genericParamTable.length).toBeGreaterThan(0);
+        expect(tables.genericParamTable.map(r => r.name)).toContain("GenericParam1");
+        expect(tables.genericParamTable.map(r => r.name)).toContain("GenericParam2");
     });
 });

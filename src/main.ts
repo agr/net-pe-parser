@@ -205,6 +205,8 @@ export class CliParser {
         const methodSpec = readTable(MetadataTables.MethodSpec, () => new MethodSpecRow(), Columns.MethodSpec);
         const genericParamConstraint = readTable(MetadataTables.GenericParamConstraint, () => new GenericParamConstraintRow(), Columns.GenericParamConstraint);
 
+        setupFieldsAndMethods(typeDef, field, methodDef);
+
         return {
             moduleTable: module,
             typeRefTable: typeRef,
@@ -321,4 +323,36 @@ interface StreamHeaderParseResult {
 interface StreamTableHeaderParseResult {
     header: CliMetadataTableStreamHeader;
     totalBytesRead: number;
+}
+
+function setupFieldsAndMethods(typeDef: TypeDefTableRow[] | null, field: FieldTableRow[] | null, methodDef: MethodDefRow[] | null) {
+    if (typeDef === null) {
+        return;
+    }
+
+    for (let i = 0; i < typeDef.length; ++i) {
+        (function(){
+            if (typeDef[i].fieldListIndex > 0 && field != null) {
+                const start = typeDef[i].fieldListIndex - 1;
+                if (start === field.length) {
+                    return;
+                }
+                const end = i < typeDef.length - 1 ? typeDef[i + 1].fieldListIndex - 1 : field.length;
+                if (start === end) {
+                    return;
+                }
+                typeDef[i].fieldList = field.slice(start, end);
+            }
+        })();
+        (function(){
+            if (typeDef[i].methodListIndex > 0 && methodDef != null) {
+                const start = typeDef[i].methodListIndex - 1;
+                const end = i < typeDef.length - 1 ? typeDef[i + 1].methodListIndex - 1 : methodDef.length;
+                if (start === end) {
+                    return;
+                }
+                typeDef[i].methodList = methodDef.slice(start, end);
+            }
+        })();
+    }
 }

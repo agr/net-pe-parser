@@ -194,4 +194,48 @@ describe('DLL file parsing tests', () => {
         expect(tables.genericParamConstraintTable.length).toBeGreaterThan(0);
         expect(tables.genericParamConstraintTable.map(r => tables.genericParamTable![r.ownerIndex - 1].name)).toContain("GenericParam1");
     });
+
+    test("Type fields and methods are set up correctly", () => {
+        const data = fs.readFileSync(dllPath);
+        const exe = PE.NtExecutable.from(data);
+        const header = CliParser.getCliHeader(exe);
+        if (!header) { throw ''; }
+        const mr = CliParser.getCliMetadataRoot(exe, header.metaData);
+        if (!mr) { throw ''; }
+        const tables = CliParser.getCliMetadataTables(exe, header.metaData, mr);
+        if (!tables || !tables.typeDefTable) { throw ''; }
+
+        const class1 = tables.typeDefTable.find(r => r.typeName === "Class1");
+        expect(class1).toBeDefined();
+        if (!class1) { throw ''; }
+        expect(class1.fieldList.map(r => r.name)).toContain("Constant1");
+        expect(class1.fieldList.map(r => r.name)).toContain("StringConst");
+        expect(class1.fieldList.map(r => r.name)).toContain("ClassConst");
+        expect(class1.fieldList.map(r => r.name)).toContain("OnEvent");
+
+        expect(class1.methodList.map(r => r.name)).toContain("GetDC");
+        expect(class1.methodList.map(r => r.name)).toContain("TestFn");
+        expect(class1.methodList.map(r => r.name)).toContain(".ctor");
+
+        const class2 = tables.typeDefTable.find(r => r.typeName === "Class2");
+        expect(class2).toBeDefined();
+        if (!class2) { throw ''; }
+
+        // backing fields for class properties
+        expect(class2.fieldList.map(r => r.name).find(r => r.indexOf("StaticIntProperty") >= 0)).toBeDefined();
+        expect(class2.fieldList.map(r => r.name).find(r => r.indexOf("StringProperty") >= 0)).toBeDefined();
+
+        expect(class2.methodList.map(r => r.name)).toContain("AnotherFn");
+        expect(class2.methodList.map(r => r.name)).toContain(".ctor");
+
+        const nestedClass = tables.typeDefTable.find(r => r.typeName === "NestedClass");
+        expect(nestedClass).toBeDefined();
+        if (!nestedClass) { throw ''; }
+
+        expect(nestedClass.fieldList.length).toBe(0);
+
+        expect(nestedClass.methodList.map(r => r.name)).toContain("NestedClassMethod");
+        expect(nestedClass.methodList.map(r => r.name)).toContain("SomeMethod");
+        expect(nestedClass.methodList.map(r => r.name)).toContain(".ctor");
+    });
 });

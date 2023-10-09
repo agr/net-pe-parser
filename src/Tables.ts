@@ -66,7 +66,9 @@ export class TypeDefTableRow {
     typeNamespace: string = "";
     extendsCI: number = 0;
     fieldListIndex: number = 0;
+    fieldList: FieldTableRow[] = [];
     methodListIndex: number = 0;
+    methodList: MethodDefRow[] = [];
 }
 
 const NoDataBuffer = new ArrayBuffer(0);

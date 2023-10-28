@@ -1,8 +1,7 @@
 import {describe, expect, test, beforeAll} from '@jest/globals';
-import * as PE from 'pe-library';
 import * as fs from 'fs';
 import * as child_process from 'child_process';
-import { CliParser } from 'src/main.js';
+import { CliFile } from 'src/main.js';
 import { ElementType } from 'src/Structures.js';
 
 const dllPath = './test/dotnet-test/bin/Debug/net7.0/dotnet-test.dll';
@@ -22,8 +21,8 @@ describe('DLL file parsing tests', () => {
     
     test('CLI header parsing works', () => {
         const data = fs.readFileSync(dllPath);
-        const exe = PE.NtExecutable.from(data);
-        const header = CliParser.getCliHeader(exe);
+        const cliFile = new CliFile(data);
+        const header = cliFile.getCliHeader();
         expect(header).not.toBeNull();
         expect(header?.cbSize).toBe(72);
         expect(header?.codeManagerTable.virtualAddress).toBe(0);
@@ -36,14 +35,8 @@ describe('DLL file parsing tests', () => {
 
     test('Metadata root parsing works', () => {
         const data = fs.readFileSync(dllPath);
-        const exe = PE.NtExecutable.from(data);
-        const header = CliParser.getCliHeader(exe);
-        if (!header) {
-            expect(header).not.toBeNull();
-            throw '';
-        }
-
-        const mr = CliParser.getCliMetadataRoot(exe, header.metaData);
+        const cliFile = new CliFile(data);
+        const mr = cliFile.getCliMetadataRoot();
         expect(mr).not.toBeNull();
         expect(mr?.signature).toBe(0x424A5342);
         expect(mr?.reserved).toBe(0);
@@ -61,14 +54,8 @@ describe('DLL file parsing tests', () => {
 
     test('Metadata table stream header parsing works', () => {
         const data = fs.readFileSync(dllPath);
-        const exe = PE.NtExecutable.from(data);
-        const header = CliParser.getCliHeader(exe);
-        expect(header).not.toBeNull();
-        if (!header) { throw ''; }
-        const mr = CliParser.getCliMetadataRoot(exe, header.metaData);
-        expect(mr).not.toBeNull();
-        if (!mr) { throw ''; }
-        const tableStreamHeader = CliParser.getCliMetadataTableStreamHeader(exe, header.metaData, mr);
+        const cliFile = new CliFile(data);
+        const tableStreamHeader = cliFile.getCliMetadataTableStreamHeader();
         expect(tableStreamHeader).not.toBeNull();
         if (!tableStreamHeader) { throw ''; }
         expect(tableStreamHeader.reserved).toBe(0);  // 24.2.6
@@ -94,14 +81,8 @@ describe('DLL file parsing tests', () => {
 
     test('Metadata tables parsing works', () => {
         const data = fs.readFileSync(dllPath);
-        const exe = PE.NtExecutable.from(data);
-        const header = CliParser.getCliHeader(exe);
-        expect(header).not.toBeNull();
-        if (!header) { throw ''; }
-        const mr = CliParser.getCliMetadataRoot(exe, header.metaData);
-        expect(mr).not.toBeNull();
-        if (!mr) { throw ''; }
-        const tables = CliParser.getCliMetadataTables(exe, header.metaData, mr);
+        const cliFile = new CliFile(data);
+        const tables = cliFile.getCliMetadata();
         expect(tables).not.toBeNull();
         if (!tables) { throw ''; }
         expect(tables.moduleTable).not.toBeNull();
@@ -197,12 +178,8 @@ describe('DLL file parsing tests', () => {
 
     test("Type fields and methods are set up correctly", () => {
         const data = fs.readFileSync(dllPath);
-        const exe = PE.NtExecutable.from(data);
-        const header = CliParser.getCliHeader(exe);
-        if (!header) { throw ''; }
-        const mr = CliParser.getCliMetadataRoot(exe, header.metaData);
-        if (!mr) { throw ''; }
-        const tables = CliParser.getCliMetadataTables(exe, header.metaData, mr);
+        const cliFile = new CliFile(data);
+        const tables = cliFile.getCliMetadata();
         if (!tables || !tables.typeDefTable) { throw ''; }
 
         const class1 = tables.typeDefTable.find(r => r.typeName === "Class1");

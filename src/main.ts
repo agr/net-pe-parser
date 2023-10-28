@@ -7,40 +7,62 @@ import { GuidHeap } from './GuidHeap.js';
 import * as Columns from './TableColumns.js'
 import { BinaryHeap } from './BinaryHeap.js';
 
-export class CliParser {
-    public static getCliHeader(exe: PE.NtExecutable): Readonly<CliHeader> | null {
-        const cliHeaderDirectoryEntry = exe.newHeader.optionalHeaderDataDirectory.get(PE.Format.ImageDirectoryEntry.ComDescriptor);
-        const sectionContainingCliHeader = exe.getSectionByEntry(PE.Format.ImageDirectoryEntry.ComDescriptor);
+export class CliFile {
+    private exe: PE.NtExecutable;
+    private header: Readonly<CliHeader> | null = null;
+    private metadataRoot: Readonly<CliMetadataRoot> | null = null;
+    private metadataTableStreamHeader: Readonly<CliMetadataTableStreamHeader> | null = null;
+    private metadata: CliMetadataTables | null = null;
+
+    constructor(file: ArrayBuffer | ArrayBufferView) {
+        this.exe = PE.NtExecutable.from(file);
+    }
+
+    public getCliHeader(): Readonly<CliHeader> {
+        if (this.header) {
+            return this.header;
+        }
+
+        const cliHeaderDirectoryEntry = this.exe.newHeader.optionalHeaderDataDirectory.get(PE.Format.ImageDirectoryEntry.ComDescriptor);
+        const sectionContainingCliHeader = this.exe.getSectionByEntry(PE.Format.ImageDirectoryEntry.ComDescriptor);
         if (!sectionContainingCliHeader || !sectionContainingCliHeader.data)
         {
-            return null;
+            throw new Error("Missing section containing CLI header");
         }
 
         const cliHeaderOffsetInSection = cliHeaderDirectoryEntry.virtualAddress - sectionContainingCliHeader.info.virtualAddress;
         const view = new DataView(sectionContainingCliHeader.data, cliHeaderOffsetInSection, 72);
-        return {
+        this.header = {
             cbSize: view.getUint32(0, true),
             majorRuntimeVersion: view.getUint16(4, true),
             minorRuntimeVersion: view.getUint16(6, true),
-            metaData: this.getRVA(view, 8),
+            metaData: CliFile.getRVA(view, 8),
             flags: view.getUint32(16, true),
             entryPointToken: view.getUint32(20, true),
-            resources: this.getRVA(view, 24),
-            strongNameSignature: this.getRVA(view, 32),
-            codeManagerTable: this.getRVA(view, 40),
-            vTableFixups: this.getRVA(view, 48),
-            exportAddressTableJumps: this.getRVA(view, 56),
-            managedNativeHeader: this.getRVA(view, 64),
+            resources: CliFile.getRVA(view, 24),
+            strongNameSignature: CliFile.getRVA(view, 32),
+            codeManagerTable: CliFile.getRVA(view, 40),
+            vTableFixups: CliFile.getRVA(view, 48),
+            exportAddressTableJumps: CliFile.getRVA(view, 56),
+            managedNativeHeader: CliFile.getRVA(view, 64),
         };
+
+        return this.header;
     }
 
-    public static getCliMetadataRoot(exe: PE.NtExecutable, metadataRva: Readonly<PE.Format.ImageDataDirectory>): Readonly<CliMetadataRoot> | null {
-        const section = this.getSectionByRva(exe, metadataRva);
-        if (!section || !section.data) {
-            return null;
+    public getCliMetadataRoot(): Readonly<CliMetadataRoot> {
+        if (this.metadataRoot) {
+            return this.metadataRoot;
         }
 
-        const metadataRootOffsetInSection = metadataRva.virtualAddress - section.info.virtualAddress;
+        const header = this.getCliHeader();
+
+        const section = CliFile.getSectionByRva(this.exe, header.metaData);
+        if (!section || !section.data) {
+            throw new Error("Can't find section containing metadata root");
+        }
+
+        const metadataRootOffsetInSection = header.metaData.virtualAddress - section.info.virtualAddress;
         const view = new DataView(section.data, metadataRootOffsetInSection);
 
         const metadataRoot: CliMetadataRoot = {
@@ -63,95 +85,42 @@ export class CliParser {
 
         let offset = flagsOffset + 4;
         for (let i = 0; i < metadataRoot.streamCount; ++i) {
-            const result = this.getCliMetadataStreamHeader(view, offset);
+            const result = CliFile.getCliMetadataStreamHeader(view, offset);
             metadataRoot.streamHeaders.push(result.header);
             offset += result.totalBytesRead;
         }
 
-        return metadataRoot;
+        this.metadataRoot = metadataRoot;
+        return this.metadataRoot;
     }
 
-    public static getMetadataStream(
-        exe: PE.NtExecutable,
-        metadataRva: Readonly<PE.Format.ImageDataDirectory>,
-        metadataStreamHeader: Readonly<CliMetadataStreamHeader>) : DataView | null
+    public getCliMetadataTableStreamHeader(): Readonly<CliMetadataTableStreamHeader>
     {
-        const section = this.getSectionByRva(exe, metadataRva);
-        if (!section || !section.data) {
-            return null;
+        if (this.metadataTableStreamHeader) {
+            return this.metadataTableStreamHeader;
         }
 
-        const metadataRootOffsetInSection = metadataRva.virtualAddress - section.info.virtualAddress;
-        const metadataStreamOffset = metadataRootOffsetInSection + metadataStreamHeader.metadataRootOffset;
-        return new DataView(section.data, metadataStreamOffset, metadataStreamHeader.streamSize);
+        const metadataStream = this.getMetadataStream("#~");
+
+        return CliFile.readCliMetadataTableHeader(metadataStream).header;
     }
 
-    public static getCliMetadataTableStreamHeader(
-        exe: PE.NtExecutable,
-        metadataRva: Readonly<PE.Format.ImageDataDirectory>,
-        metadataRoot: Readonly<CliMetadataRoot>): Readonly<CliMetadataTableStreamHeader> | null
-    {    
-        const metadataStreamHeader = metadataRoot.streamHeaders.find(h => h.streamName === "#~");
-        if (!metadataStreamHeader) {
-            return null;
-        }
-
-        const metadataStream = this.getMetadataStream(exe, metadataRva, metadataStreamHeader);
-        if (!metadataStream) {
-            return null;
-        }
-
-        return this.readCliMetadataTableHeader(metadataStream).header;
-    }
-
-    public static getCliMetadataTables(exe: PE.NtExecutable,
-        metadataRva: Readonly<PE.Format.ImageDataDirectory>,
-        metadataRoot: Readonly<CliMetadataRoot>) : CliMetadataTables | null
+    public getCliMetadata() : CliMetadataTables
     {
-        const metadataStreamHeader = metadataRoot.streamHeaders.find(h => h.streamName === "#~");
-        if (!metadataStreamHeader) {
-            return null;
+        if (this.metadata) {
+            return this.metadata;
         }
 
-        const metadataStream = this.getMetadataStream(exe, metadataRva, metadataStreamHeader);
-        if (!metadataStream) {
-            return null;
-        }
+        const metadataStream = this.getMetadataStream("#~");
+        const stringHeapStream = this.getMetadataStream("#Strings");
+        const guidHeapStream = this.getMetadataStream("#GUID");
+        const blobHeapStream = this.getMetadataStream("#Blob");
 
-        const stringHeapStreamHeader = metadataRoot.streamHeaders.find(h => h.streamName === "#Strings");
-        if (!stringHeapStreamHeader) {
-            return null;
-        }
-        const stringHeapStream = this.getMetadataStream(exe, metadataRva, stringHeapStreamHeader);
-        if (!stringHeapStream) {
-            return null;
-        }
-
-        const guidHeapStreamHeader = metadataRoot.streamHeaders.find(h => h.streamName === "#GUID");
-        if (!guidHeapStreamHeader) {
-            return null;
-        }
-
-        const guidHeapStream = this.getMetadataStream(exe, metadataRva, guidHeapStreamHeader);
-        if (!guidHeapStream) {
-            return null;
-        }
-
-        const blobHeapStreamHeader = metadataRoot.streamHeaders.find(h => h.streamName === "#Blob");
-        if (!blobHeapStreamHeader) {
-            return null;
-        }
-
-        const blobHeapStream = this.getMetadataStream(exe, metadataRva, blobHeapStreamHeader);
-        if (!blobHeapStream) {
-            return null;
-        }
-
-        const headerReadResult = this.readCliMetadataTableHeader(metadataStream);
-        const header = headerReadResult.header;
-        const stringHeap = new StringHeap(stringHeapStream, header.heapSizes & HeapSizes.StringStreamUses32BitIndexes ? 4 : 2);
-        const guidHeap = new GuidHeap(guidHeapStream, header.heapSizes & HeapSizes.GuidStreamUses32BitIndexes ? 4 : 2);
-        const blobHeap = new BinaryHeap(blobHeapStream, header.heapSizes & HeapSizes.BlobStreamUses32BitIndexes ? 4 : 2);
+        const headerReadResult = CliFile.readCliMetadataTableHeader(metadataStream);
+        const tableHeader = headerReadResult.header;
+        const stringHeap = new StringHeap(stringHeapStream, tableHeader.heapSizes & HeapSizes.StringStreamUses32BitIndexes ? 4 : 2);
+        const guidHeap = new GuidHeap(guidHeapStream, tableHeader.heapSizes & HeapSizes.GuidStreamUses32BitIndexes ? 4 : 2);
+        const blobHeap = new BinaryHeap(blobHeapStream, tableHeader.heapSizes & HeapSizes.BlobStreamUses32BitIndexes ? 4 : 2);
 
         let offset = headerReadResult.totalBytesRead;
 
@@ -160,8 +129,8 @@ export class CliParser {
             createRow: () => TRow,
             getColumns: Columns.GetColumns<TRow>): TRow[] | null
         {
-            const columns = getColumns(header, stringHeap, blobHeap, guidHeap);
-            const result = getRowsFromBytes(table, metadataStream!, offset, createRow, columns, header);
+            const columns = getColumns(tableHeader, stringHeap, blobHeap, guidHeap);
+            const result = getRowsFromBytes(table, metadataStream!, offset, createRow, columns, tableHeader);
             offset += result.bytesRead || 0;
             return result.rows;
         }
@@ -207,7 +176,7 @@ export class CliParser {
 
         setupFieldsAndMethods(typeDef, field, methodDef);
 
-        return {
+        this.metadata = {
             moduleTable: module,
             typeRefTable: typeRef,
             typeDefTable: typeDef,
@@ -246,7 +215,29 @@ export class CliParser {
             genericParamTable: genericParam,
             methodSpecTable: methodSpec,
             genericParamConstraintTable: genericParamConstraint,
+        };
+
+        return this.metadata;
+    }
+
+    private getMetadataStream(streamName: string) : DataView
+    {
+        const metadataRva = this.getCliHeader().metaData;
+        const metadataRoot = this.getCliMetadataRoot();
+
+        const metadataStreamHeader = metadataRoot.streamHeaders.find(h => h.streamName === streamName);
+        if (!metadataStreamHeader) {
+            throw new Error(`Can't find ${streamName} stream header`);
         }
+
+        const section = CliFile.getSectionByRva(this.exe, metadataRva);
+        if (!section || !section.data) {
+            throw new Error(`Can't find section containing ${streamName} stream`);
+        }
+
+        const metadataRootOffsetInSection = metadataRva.virtualAddress - section.info.virtualAddress;
+        const metadataStreamOffset = metadataRootOffsetInSection + metadataStreamHeader.metadataRootOffset;
+        return new DataView(section.data, metadataStreamOffset, metadataStreamHeader.streamSize);
     }
 
     private static readCliMetadataTableHeader(view: DataView) : StreamTableHeaderParseResult

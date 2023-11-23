@@ -1,7 +1,7 @@
 import {describe, expect, test, beforeAll} from '@jest/globals';
 import * as fs from 'fs';
 import * as child_process from 'child_process';
-import { CliFile } from 'src/main.js';
+import { CliFile } from 'src/CliFile.js';
 import { ElementType } from 'src/Structures.js';
 
 const dllPath = './test/dotnet-test/bin/Debug/net7.0/dotnet-test.dll';

@@ -1,8 +1,9 @@
 {
-  "name": "net-pe-parser",
-  "version": "0.0.1",
-  "description": ".NET PE file parser",
-  "main": "index.js",
+  "name": "net-pe-reader",
+  "version": "0.1.0",
+  "description": ".NET PE file reader",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
@@ -18,5 +19,8 @@
   "dependencies": {
     "pe-library": "^1.0.0"
   },
+  "files": [
+    "./dist/src"
+  ],
   "type": "module"
 }

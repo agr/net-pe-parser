@@ -85,104 +85,104 @@ describe('DLL file parsing tests', () => {
         const tables = cliFile.getCliMetadata();
         expect(tables).not.toBeNull();
         if (!tables) { throw ''; }
-        expect(tables.moduleTable).not.toBeNull();
-        if (!tables.moduleTable) { throw ''; }
-        expect(tables.moduleTable.length).toBe(1);
-        expect(tables.moduleTable[0].generation).toBe(0);
-        expect(tables.moduleTable[0].name).toBe('dotnet-test.dll');
-        expect(tables.typeRefTable).not.toBeNull();
-        if (!tables.typeRefTable) { throw ''; }
-        expect(tables.typeDefTable).not.toBeNull();
-        if (!tables.typeDefTable) { throw ''; }
-        expect(tables.typeDefTable.map(r => r.typeName)).toContain("Class1");
-        expect(tables.typeDefTable.map(r => r.typeName)).toContain("Class2");
-        expect(tables.typeDefTable.map(r => r.typeName)).toContain("NestedClass");
-        expect(tables.fieldTable).not.toBeNull();
-        if (!tables.fieldTable) { throw ''; }
-        expect(tables.methodDefTable).not.toBeNull();
-        if (!tables.methodDefTable) { throw ''; }
-        expect(tables.methodDefTable.map(r => r.name)).toContain("TestFn");
-        expect(tables.methodDefTable.map(r => r.name)).toContain("AnotherFn");
-        expect(tables.methodDefTable.map(r => r.name)).toContain("NestedClassMethod");
-        expect(tables.paramTable).not.toBeNull();
-        if (!tables.paramTable) { throw ''; }
-        expect(tables.paramTable.map(r => r.name)).toContain("arg1");
-        expect(tables.paramTable.map(r => r.name)).toContain("arg2");
-        expect(tables.paramTable.map(r => r.name)).toContain("someObject");
-        expect(tables.interfaceImplTable).not.toBeNull();
-        if (!tables.interfaceImplTable) { throw ''; }
-        expect(tables.interfaceImplTable.length).toBeGreaterThan(0);
-        expect(tables.interfaceImplTable.map(r => tables.typeDefTable![r.classIndex - 1].typeName)).toContain("NestedClass");
-        expect(tables.memberRefTable).not.toBeNull();
-        if (!tables.memberRefTable) { throw ''; }
-        expect(tables.memberRefTable.map(r => r.name)).toContain("Substring");
-        expect(tables.memberRefTable.map(r => r.name)).toContain("get_Length");
-        expect(tables.constantTable).not.toBeNull();
-        if (!tables.constantTable) { throw ''; }
-        expect(tables.constantTable.filter(r => r.type == ElementType.CLASS).length).toBeGreaterThan(0);
-        expect(tables.constantTable.filter(r => r.type == ElementType.CLASS).map(r => r.value.getUint32(0, true) == 0).reduce((p: boolean, v: boolean) => p && v, true)).toBeTruthy();
-        expect(tables.classLayoutTable).not.toBeNull();
-        if (!tables.classLayoutTable) { throw ''; }
-        expect(tables.classLayoutTable.length).toBeGreaterThan(0);
-        expect(tables.fieldLayoutTable).not.toBeNull();
-        if (!tables.fieldLayoutTable) { throw ''; }
-        expect(tables.fieldLayoutTable.length).toBeGreaterThan(1);
-        expect(tables.eventMapTable).not.toBeNull();
-        if (!tables.eventMapTable) { throw ''; }
-        expect(tables.eventMapTable.length).toBeGreaterThan(0);
-        expect(tables.eventTable).not.toBeNull();
-        if (!tables.eventTable) { throw ''; }
-        expect(tables.eventTable.map(r => r.name)).toContain("OnEvent");
-        expect(tables.propertyMapTable).not.toBeNull();
-        if (!tables.propertyMapTable) { throw ''; }
-        expect(tables.propertyMapTable.length).toBeGreaterThan(0);
-        expect(tables.propertyTable).not.toBeNull();
-        if (!tables.propertyTable) { throw ''; }
-        expect(tables.propertyTable.map(r => r.name)).toContain("SomeProperty");
-        expect(tables.propertyTable.map(r => r.name)).toContain("StaticIntProperty");
-        expect(tables.propertyTable.map(r => r.name)).toContain("StringProperty");
-        expect(tables.methodSemanticsTable).not.toBeNull();
-        if (!tables.methodSemanticsTable) { throw ''; }
-        expect(tables.methodSemanticsTable.length).toBeGreaterThan(0);
-        expect(tables.methodImplTable).not.toBeNull();
-        if (!tables.methodImplTable) { throw ''; }
-        expect(tables.methodImplTable.length).toBeGreaterThan(0);
-        expect(tables.implMapTable).not.toBeNull();
-        if (!tables.implMapTable) { throw ''; }
-        expect(tables.implMapTable.length).toBeGreaterThan(0);
-        expect(tables.assemblyTable).not.toBeNull();
-        if (!tables.assemblyTable) { throw ''; }
-        expect(tables.assemblyTable.length).toBe(1);
-        expect(tables.assemblyTable[0].name).toBe('dotnet-test');
-        expect(tables.assemblyRefTable).not.toBeNull();
-        if (!tables.assemblyRefTable) { throw ''; }
-        expect(tables.assemblyRefTable.map(r => r.name)).toContain("System.Runtime");
-        expect(tables.nestedClassTable).not.toBeNull();
-        if (!tables.nestedClassTable) { throw ''; }
-        expect(tables.nestedClassTable.length).toBeGreaterThan(0);
-        expect(tables.nestedClassTable.map(r => tables.typeDefTable![r.nestedClassIndex - 1].typeName)).toContain("NestedClass");
-        expect(tables.nestedClassTable.map(r => tables.typeDefTable![r.enclosingClassIndex - 1].typeName)).toContain("Class2");
-        expect(tables.genericParamTable).not.toBeNull();
-        if (!tables.genericParamTable) { throw ''; }
-        expect(tables.genericParamTable.length).toBeGreaterThan(0);
-        expect(tables.genericParamTable.map(r => r.name)).toContain("GenericParam1");
-        expect(tables.genericParamTable.map(r => r.name)).toContain("GenericParam2");
-        expect(tables.methodSpecTable).not.toBeNull();
-        if (!tables.methodSpecTable) { throw '';}
-        expect(tables.methodSpecTable.length).toBeGreaterThan(0);
-        expect(tables.genericParamConstraintTable).not.toBeNull();
-        if (!tables.genericParamConstraintTable) { throw '';}
-        expect(tables.genericParamConstraintTable.length).toBeGreaterThan(0);
-        expect(tables.genericParamConstraintTable.map(r => tables.genericParamTable![r.ownerIndex - 1].name)).toContain("GenericParam1");
+        expect(tables.module).not.toBeNull();
+        if (!tables.module) { throw ''; }
+        expect(tables.module.length).toBe(1);
+        expect(tables.module[0].generation).toBe(0);
+        expect(tables.module[0].name).toBe('dotnet-test.dll');
+        expect(tables.typeRef).not.toBeNull();
+        if (!tables.typeRef) { throw ''; }
+        expect(tables.typeDef).not.toBeNull();
+        if (!tables.typeDef) { throw ''; }
+        expect(tables.typeDef.map(r => r.typeName)).toContain("Class1");
+        expect(tables.typeDef.map(r => r.typeName)).toContain("Class2");
+        expect(tables.typeDef.map(r => r.typeName)).toContain("NestedClass");
+        expect(tables.field).not.toBeNull();
+        if (!tables.field) { throw ''; }
+        expect(tables.methodDef).not.toBeNull();
+        if (!tables.methodDef) { throw ''; }
+        expect(tables.methodDef.map(r => r.name)).toContain("TestFn");
+        expect(tables.methodDef.map(r => r.name)).toContain("AnotherFn");
+        expect(tables.methodDef.map(r => r.name)).toContain("NestedClassMethod");
+        expect(tables.param).not.toBeNull();
+        if (!tables.param) { throw ''; }
+        expect(tables.param.map(r => r.name)).toContain("arg1");
+        expect(tables.param.map(r => r.name)).toContain("arg2");
+        expect(tables.param.map(r => r.name)).toContain("someObject");
+        expect(tables.interfaceImpl).not.toBeNull();
+        if (!tables.interfaceImpl) { throw ''; }
+        expect(tables.interfaceImpl.length).toBeGreaterThan(0);
+        expect(tables.interfaceImpl.map(r => tables.typeDef![r.classIndex - 1].typeName)).toContain("NestedClass");
+        expect(tables.memberRef).not.toBeNull();
+        if (!tables.memberRef) { throw ''; }
+        expect(tables.memberRef.map(r => r.name)).toContain("Substring");
+        expect(tables.memberRef.map(r => r.name)).toContain("get_Length");
+        expect(tables.constant).not.toBeNull();
+        if (!tables.constant) { throw ''; }
+        expect(tables.constant.filter(r => r.type == ElementType.CLASS).length).toBeGreaterThan(0);
+        expect(tables.constant.filter(r => r.type == ElementType.CLASS).map(r => r.value.getUint32(0, true) == 0).reduce((p: boolean, v: boolean) => p && v, true)).toBeTruthy();
+        expect(tables.classLayout).not.toBeNull();
+        if (!tables.classLayout) { throw ''; }
+        expect(tables.classLayout.length).toBeGreaterThan(0);
+        expect(tables.fieldLayout).not.toBeNull();
+        if (!tables.fieldLayout) { throw ''; }
+        expect(tables.fieldLayout.length).toBeGreaterThan(1);
+        expect(tables.eventMap).not.toBeNull();
+        if (!tables.eventMap) { throw ''; }
+        expect(tables.eventMap.length).toBeGreaterThan(0);
+        expect(tables.event).not.toBeNull();
+        if (!tables.event) { throw ''; }
+        expect(tables.event.map(r => r.name)).toContain("OnEvent");
+        expect(tables.propertyMap).not.toBeNull();
+        if (!tables.propertyMap) { throw ''; }
+        expect(tables.propertyMap.length).toBeGreaterThan(0);
+        expect(tables.property).not.toBeNull();
+        if (!tables.property) { throw ''; }
+        expect(tables.property.map(r => r.name)).toContain("SomeProperty");
+        expect(tables.property.map(r => r.name)).toContain("StaticIntProperty");
+        expect(tables.property.map(r => r.name)).toContain("StringProperty");
+        expect(tables.methodSemantics).not.toBeNull();
+        if (!tables.methodSemantics) { throw ''; }
+        expect(tables.methodSemantics.length).toBeGreaterThan(0);
+        expect(tables.methodImpl).not.toBeNull();
+        if (!tables.methodImpl) { throw ''; }
+        expect(tables.methodImpl.length).toBeGreaterThan(0);
+        expect(tables.implMap).not.toBeNull();
+        if (!tables.implMap) { throw ''; }
+        expect(tables.implMap.length).toBeGreaterThan(0);
+        expect(tables.assembly).not.toBeNull();
+        if (!tables.assembly) { throw ''; }
+        expect(tables.assembly.length).toBe(1);
+        expect(tables.assembly[0].name).toBe('dotnet-test');
+        expect(tables.assemblyRef).not.toBeNull();
+        if (!tables.assemblyRef) { throw ''; }
+        expect(tables.assemblyRef.map(r => r.name)).toContain("System.Runtime");
+        expect(tables.nestedClass).not.toBeNull();
+        if (!tables.nestedClass) { throw ''; }
+        expect(tables.nestedClass.length).toBeGreaterThan(0);
+        expect(tables.nestedClass.map(r => tables.typeDef![r.nestedClassIndex - 1].typeName)).toContain("NestedClass");
+        expect(tables.nestedClass.map(r => tables.typeDef![r.enclosingClassIndex - 1].typeName)).toContain("Class2");
+        expect(tables.genericParam).not.toBeNull();
+        if (!tables.genericParam) { throw ''; }
+        expect(tables.genericParam.length).toBeGreaterThan(0);
+        expect(tables.genericParam.map(r => r.name)).toContain("GenericParam1");
+        expect(tables.genericParam.map(r => r.name)).toContain("GenericParam2");
+        expect(tables.methodSpec).not.toBeNull();
+        if (!tables.methodSpec) { throw '';}
+        expect(tables.methodSpec.length).toBeGreaterThan(0);
+        expect(tables.genericParamConstraint).not.toBeNull();
+        if (!tables.genericParamConstraint) { throw '';}
+        expect(tables.genericParamConstraint.length).toBeGreaterThan(0);
+        expect(tables.genericParamConstraint.map(r => tables.genericParam![r.ownerIndex - 1].name)).toContain("GenericParam1");
     });
 
     test("Type fields and methods are set up correctly", () => {
         const data = fs.readFileSync(dllPath);
         const cliFile = new CliFile(data);
         const tables = cliFile.getCliMetadata();
-        if (!tables || !tables.typeDefTable) { throw ''; }
+        if (!tables || !tables.typeDef) { throw ''; }
 
-        const class1 = tables.typeDefTable.find(r => r.typeName === "Class1");
+        const class1 = tables.typeDef.find(r => r.typeName === "Class1");
         expect(class1).toBeDefined();
         if (!class1) { throw ''; }
         expect(class1.fieldList.map(r => r.name)).toContain("Constant1");
@@ -194,7 +194,7 @@ describe('DLL file parsing tests', () => {
         expect(class1.methodList.map(r => r.name)).toContain("TestFn");
         expect(class1.methodList.map(r => r.name)).toContain(".ctor");
 
-        const class2 = tables.typeDefTable.find(r => r.typeName === "Class2");
+        const class2 = tables.typeDef.find(r => r.typeName === "Class2");
         expect(class2).toBeDefined();
         if (!class2) { throw ''; }
 
@@ -205,7 +205,7 @@ describe('DLL file parsing tests', () => {
         expect(class2.methodList.map(r => r.name)).toContain("AnotherFn");
         expect(class2.methodList.map(r => r.name)).toContain(".ctor");
 
-        const nestedClass = tables.typeDefTable.find(r => r.typeName === "NestedClass");
+        const nestedClass = tables.typeDef.find(r => r.typeName === "NestedClass");
         expect(nestedClass).toBeDefined();
         if (!nestedClass) { throw ''; }
 

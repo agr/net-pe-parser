@@ -80,8 +80,8 @@ export enum MetadataTables {
     MethodSpec = 0x2B,
     GenericParamConstraint = 0x2C,
 
-    // TODO: figure out what is Permission in HasCustomAttribute coded index
-    Permission = 0xC0, // fake value to map in HasCustomAttribute coded index
+    // the "Permission" tag of the HasCustomAttribute coded index refers to the DeclSecurity table
+    Permission = DeclSecurity,
     NotUsed = 0xC1,  // fake value to map in CustomAttributeType coded index to unused tags
 }
 

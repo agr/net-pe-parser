@@ -18,8 +18,10 @@ export class CodedIndexColumn<TRow> implements Column<TRow> {
         this.setCodedIndex = setCodedIndex;
 
         const tagBits = getMinBitsRepresenting(tables.length);
-        const largestTableRows = Math.max(...tables.map(t => tableStreamHeader.tableRowCounts[t]));
-        const tableIndexBits = getMinBitsRepresenting(largestTableRows);
+        // fake tags (NotUsed) have no row count, so they must not participate in the maximum
+        const rowCounts = tables.map(t => tableStreamHeader.tableRowCounts[t]).filter(c => c !== undefined);
+        const largestTableRows = Math.max(0, ...rowCounts);
+        const tableIndexBits = getMinBitsRepresenting(largestTableRows + 1);
         const totalBits = tagBits + tableIndexBits;
         this.indexSize = totalBits <= 16 ? 2 : 4;
 

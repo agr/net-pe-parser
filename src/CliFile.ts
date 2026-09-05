@@ -15,7 +15,7 @@ export class CliFile {
     private metadata: CliMetadataTables | null = null;
 
     constructor(file: ArrayBuffer | ArrayBufferView) {
-        this.exe = PE.NtExecutable.from(file);
+        this.exe = PE.NtExecutable.from(file, { ignoreCert: true });
     }
 
     public getCliHeader(): Readonly<CliHeader> {

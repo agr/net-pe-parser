@@ -4,7 +4,7 @@ import * as child_process from 'child_process';
 import { CliFile } from 'src/CliFile.js';
 import { ElementType } from 'src/Structures.js';
 
-const dllPath = './test/dotnet-test/bin/Debug/net7.0/dotnet-test.dll';
+const dllPath = './test/dotnet-test/bin/Debug/net10.0/dotnet-test.dll';
 
 describe('DLL file parsing tests', () => {
     beforeAll(async () => {
